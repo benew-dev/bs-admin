@@ -58,8 +58,6 @@ export async function POST(req) {
 
   const body = await req.json();
 
-  console.log("req user", req.user);
-
   const product = await Product.create(body);
 
   return NextResponse.json(
