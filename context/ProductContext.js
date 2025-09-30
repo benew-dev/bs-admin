@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 
 const ProductContext = createContext();
 
-// eslint-disable-next-line react/prop-types
 export const ProductProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
