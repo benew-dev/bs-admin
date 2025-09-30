@@ -1,5 +1,8 @@
 import dbConnect from "@/backend/config/dbConnect";
-import { authorizeRoles } from "@/backend/middlewares/auth";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
 import Category from "@/backend/models/category";
 import Product from "@/backend/models/product";
 import User from "@/backend/models/user";
