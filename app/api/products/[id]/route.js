@@ -161,7 +161,7 @@ export async function DELETE(req, { params }) {
   await product.deleteOne();
 
   return NextResponse.json(
-    { succes: true, message: "Product deleted successfully." },
+    { success: true, message: "Product deleted successfully." },
     { status: 200 },
   );
 }

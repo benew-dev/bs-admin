@@ -1,22 +1,22 @@
 /* eslint-disable react/prop-types */
-'use client';
+"use client";
 
-import dynamic from 'next/dynamic';
-import React, { memo, useContext, useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import Loading from '@/app/loading';
+import dynamic from "next/dynamic";
+import React, { memo, useContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import Loading from "@/app/loading";
 
 const CustomPagination = dynamic(
-  () => import('@/components/layouts/CustomPagniation'),
+  () => import("@/components/layouts/CustomPagniation"),
 );
-import ProductContext from '@/context/ProductContext';
+import ProductContext from "@/context/ProductContext";
 
-const ProductsTable = dynamic(() => import('./table/ProductsTable'), {
+const ProductsTable = dynamic(() => import("./table/ProductsTable"), {
   loading: () => <Loading />,
 });
 
-import Search from '../layouts/Search';
-import ProductsFilter from './ProductsFilter';
+import Search from "../layouts/Search";
+import ProductsFilter from "./ProductsFilter";
 
 const Products = memo(({ data }) => {
   const { deleteProduct, error, loading, setLoading, clearErrors } =
@@ -82,6 +82,6 @@ const Products = memo(({ data }) => {
   );
 });
 
-Products.displayName = 'Products';
+Products.displayName = "Products";
 
 export default Products;

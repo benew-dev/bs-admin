@@ -39,7 +39,8 @@ export const ProductProvider = ({ children }) => {
         product,
       );
 
-      if (data) {
+      if (data?.success) {
+        toast.success("Product added successfully");
         router.push("/admin/products");
         router.refresh();
       }
@@ -104,8 +105,6 @@ export const ProductProvider = ({ children }) => {
       const { data } = await axios.delete(
         `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
       );
-
-      console.log("data", data);
 
       if (data?.success) {
         toast.success("Product deleted !");
