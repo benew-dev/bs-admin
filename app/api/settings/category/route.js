@@ -8,14 +8,16 @@ export async function POST(req) {
 
   const totalCategory = await Category.countDocuments();
 
+  const body = await req.json();
+
   console.log("Body REQUEST");
-  console.log(req.body);
+  console.log(body);
 
   if (totalCategory < 6) {
     // Créer la catégorie avec les données envoyées (incluant isActive)
     const categoryData = {
-      categoryName: req.body.categoryName,
-      isActive: req.body.isActive || false, // Par défaut false si non spécifié
+      categoryName: body.categoryName,
+      isActive: body.isActive || false, // Par défaut false si non spécifié
     };
 
     console.log("Category Data", categoryData);
