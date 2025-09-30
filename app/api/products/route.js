@@ -1,9 +1,9 @@
-import dbConnect from '@/backend/config/dbConnect';
-import Category from '@/backend/models/category';
-import Product from '@/backend/models/product';
-import User from '@/backend/models/user';
-import APIFilters from '@/backend/utils/APIFilters';
-import { NextResponse } from 'next/server';
+import dbConnect from "@/backend/config/dbConnect";
+import Category from "@/backend/models/category";
+import Product from "@/backend/models/product";
+import User from "@/backend/models/user";
+import APIFilters from "@/backend/utils/APIFilters";
+import { NextResponse } from "next/server";
 
 export async function GET(req) {
   // Connexion DB
@@ -16,7 +16,7 @@ export async function GET(req) {
     .search()
     .filter();
 
-  let products = await apiFilters.query.populate('category');
+  let products = await apiFilters.query.populate("category");
   const filteredProductsCount = products.length;
 
   apiFilters.pagination(resPerPage);
@@ -46,17 +46,25 @@ export async function POST(req) {
   // Connexion DB
   await dbConnect();
 
-  const user = await User.findOne({ email: req.user.email }).select('_id');
+  const user = await User.findOne({ email: req.user.email }).select("_id");
+
+  console.log("User found", user);
 
   if (!user) {
     return NextResponse.json(
       {
         success: false,
-        message: 'User not found',
+        message: "User not found",
       },
       { status: 404 },
     );
   }
+
+  const bodyAsync = await req.json();
+  const bodyObject = req.body;
+
+  console.log("Body awaited", bodyAsync);
+  console.log("Body got directly", bodyObject);
 
   req.body.user = user._id;
 

@@ -34,10 +34,13 @@ export const ProductProvider = ({ children }) => {
 
   const newProduct = async (product) => {
     try {
+      console.log("Adding new product", product);
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/products`,
         product,
       );
+
+      console.log("Product added", data);
 
       if (data) {
         router.push("/admin/products");
