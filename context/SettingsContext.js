@@ -54,7 +54,7 @@ export const SettingsProvider = ({ children }) => {
         requestData,
       );
 
-      console.log("Category added", data);
+      consol;
 
       if (data?.success) {
         router.push("/admin/settings");
@@ -85,8 +85,6 @@ export const SettingsProvider = ({ children }) => {
           },
         },
       );
-
-      console.log("Category status changed", data);
 
       if (data.success) {
         // Mettre à jour la liste des catégories localement
@@ -121,8 +119,6 @@ export const SettingsProvider = ({ children }) => {
       const { data } = await axios.delete(
         `${process.env.NEXT_PUBLIC_API_URL}/api/settings/category/${id}`,
       );
-
-      console.log("Category deleted", data);
 
       // Vérifier si la réponse contient un message de succès
       if (data?.message && data.message.includes("successfully")) {

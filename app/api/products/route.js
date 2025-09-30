@@ -46,6 +46,11 @@ export async function POST(req) {
   // Connexion DB
   await dbConnect();
 
+  const bodyAsync = await req.json();
+  console.log("Body awaited", bodyAsync);
+  const bodyObject = req.body;
+  console.log("Body got directly", bodyObject);
+
   const user = await User.findOne({ email: req.user.email }).select("_id");
 
   console.log("User found", user);
@@ -59,12 +64,6 @@ export async function POST(req) {
       { status: 404 },
     );
   }
-
-  const bodyAsync = await req.json();
-  const bodyObject = req.body;
-
-  console.log("Body awaited", bodyAsync);
-  console.log("Body got directly", bodyObject);
 
   req.body.user = user._id;
 
