@@ -1,13 +1,23 @@
-import dbConnect from '@/backend/config/dbConnect';
+import dbConnect from "@/backend/config/dbConnect";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
 import {
   descListCategorySoldSinceBeginningPipeline,
   descListCategorySoldThisMonthPipeline,
   descListProductSoldSinceBeginningPipeline,
   descListProductSoldThisMonthPipeline,
-} from '@/backend/pipelines/productPipelines';
-import { NextResponse } from 'next/server';
+} from "@/backend/pipelines/productPipelines";
+import { NextResponse } from "next/server";
 
 export async function GET() {
+  // Vérifier l'authentification
+  await isAuthenticatedUser(req, NextResponse);
+
+  // Vérifier le role
+  await authorizeRoles(NextResponse, "admin");
+
   await dbConnect();
 
   // GETTING LAST MONTH INDEX, CURRENT MONTH and CURRENT YEAR

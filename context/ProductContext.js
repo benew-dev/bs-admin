@@ -106,6 +106,8 @@ export const ProductProvider = ({ children }) => {
         `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`,
       );
 
+      console.log("data", data);
+
       if (data?.success) {
         toast.success("Product deleted !");
         router.push(`/admin/products`);
