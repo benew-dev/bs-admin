@@ -1,31 +1,27 @@
-import ErrorHandler from '../utils/errorHandler';
-import { getServerSession } from 'next-auth';
-import User from '../models/user';
-import { auth } from '@/app/api/auth/[...nextauth]/route';
+import { getServerSession } from "next-auth";
+import User from "../models/user";
+import { auth } from "@/app/api/auth/[...nextauth]/route";
 
-const isAuthenticatedUser = async (req, res, next) => {
-  const session = await getServerSession(req, res, auth);
+const isAuthenticatedUser = async (req, res) => {
+  const session = await getServerSession(auth);
 
   if (!session) {
-    return new ErrorHandler('Login first to access this route', 401);
+    return res.error("Login first to access this route", 401);
   }
 
   req.user = session.user;
-
-  next();
 };
 
-const authorizeRoles = (...roles) => {
-  return async (req, res, next) => {
-    const user = await User.findOne({ email: req.user.email }).select('role');
+const authorizeRoles = (res, ...roles) => {
+  return async (req) => {
+    const user = await User.findOne({ email: req.user.email }).select("role");
 
     if (!roles.includes(user.role)) {
-      return new ErrorHandler(
+      return res.error(
         `Role (${user.role}) is not allowed to access this resource.`,
+        401,
       );
     }
-
-    next();
   };
 };
 

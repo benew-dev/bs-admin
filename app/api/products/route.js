@@ -1,4 +1,5 @@
 import dbConnect from "@/backend/config/dbConnect";
+import { authorizeRoles } from "@/backend/middlewares/auth";
 import Category from "@/backend/models/category";
 import Product from "@/backend/models/product";
 import User from "@/backend/models/user";
@@ -43,33 +44,20 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
+  // Vérifier l'authentification
+  await isAuthenticatedUser(req, NextResponse);
+
+  // Vérifier le role
+  await authorizeRoles(NextResponse, "admin");
+
   // Connexion DB
   await dbConnect();
 
-  const bodyAsync = await req.json();
-  console.log("Body awaited", bodyAsync);
-  const bodyObject = req.body;
-  console.log("Body got directly", bodyObject);
+  const body = await req.json();
 
   console.log("req user", req.user);
 
-  const user = await User.findOne({ email: req.user.email }).select("_id");
-
-  console.log("User found", user);
-
-  if (!user) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: "User not found",
-      },
-      { status: 404 },
-    );
-  }
-
-  req.body.user = user._id;
-
-  const product = await Product.create(req.body);
+  const product = await Product.create(body);
 
   return NextResponse.json(
     {
