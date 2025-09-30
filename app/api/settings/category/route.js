@@ -1,6 +1,6 @@
-import dbConnect from '@/backend/config/dbConnect';
-import Category from '@/backend/models/category';
-import { NextResponse } from 'next/server';
+import dbConnect from "@/backend/config/dbConnect";
+import Category from "@/backend/models/category";
+import { NextResponse } from "next/server";
 
 export async function POST(req) {
   // Connexion DB
@@ -15,6 +15,8 @@ export async function POST(req) {
       isActive: req.body.isActive || false, // Par défaut false si non spécifié
     };
 
+    console.log("Category Data", categoryData);
+
     const categoryAdded = await Category.create(categoryData);
 
     return NextResponse.json(
@@ -26,7 +28,7 @@ export async function POST(req) {
     );
   } else {
     const error =
-      'You have reached the maximum limit, 6, of category. To add another category, delete one.';
+      "You have reached the maximum limit, 6, of category. To add another category, delete one.";
 
     return NextResponse.json(
       {
