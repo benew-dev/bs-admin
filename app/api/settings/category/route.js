@@ -1,4 +1,8 @@
 import dbConnect from "@/backend/config/dbConnect";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
 import Category from "@/backend/models/category";
 import { NextResponse } from "next/server";
 
@@ -47,6 +51,12 @@ export async function POST(req) {
 }
 
 export async function GET() {
+  // Vérifier l'authentification
+  await isAuthenticatedUser(req, NextResponse);
+
+  // Vérifier le role
+  await authorizeRoles(NextResponse, "admin");
+
   // Connexion DB
   await dbConnect();
 

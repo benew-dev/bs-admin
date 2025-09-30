@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import dbConnect from "@/backend/config/dbConnect";
 import Product from "@/backend/models/product";
 import Category from "@/backend/models/category";
@@ -9,6 +8,10 @@ import {
 } from "@/backend/pipelines/productPipelines";
 import Cart from "@/backend/models/cart";
 import { cloudinary } from "@/backend/utils/cloudinary";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
 
 export async function GET(req, { params }) {
   // Vérifier l'authentification
