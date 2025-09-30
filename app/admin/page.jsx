@@ -1,10 +1,10 @@
 import React from "react";
-import dynamic from "next/dynamic";
-import Loading from "../loading";
+// import dynamic from "next/dynamic";
+// import Loading from "../loading";
 
-const Overview = dynamic(() => import("@/components/overview/Overview"), {
-  loading: () => <Loading />,
-});
+// const Overview = dynamic(() => import("@/components/overview/Overview"), {
+//   loading: () => <Loading />,
+// });
 
 import {
   getAllOrders,
