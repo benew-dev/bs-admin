@@ -11,6 +11,12 @@ import Cart from "@/backend/models/cart";
 import { cloudinary } from "@/backend/utils/cloudinary";
 
 export async function GET(req, { params }) {
+  // Vérifier l'authentification
+  await isAuthenticatedUser(req, NextResponse);
+
+  // Vérifier le role
+  await authorizeRoles(NextResponse, "admin");
+
   const { id } = await params;
 
   await dbConnect();
@@ -53,6 +59,12 @@ export async function GET(req, { params }) {
 }
 
 export async function PUT(req, { params }) {
+  // Vérifier l'authentification
+  await isAuthenticatedUser(req, NextResponse);
+
+  // Vérifier le role
+  await authorizeRoles(NextResponse, "admin");
+
   const { id } = await params;
   await dbConnect();
 
@@ -97,6 +109,12 @@ export async function PUT(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
+  // Vérifier l'authentification
+  await isAuthenticatedUser(req, NextResponse);
+
+  // Vérifier le role
+  await authorizeRoles(NextResponse, "admin");
+
   const { id } = await params;
   await dbConnect();
 

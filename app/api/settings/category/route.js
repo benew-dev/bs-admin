@@ -3,6 +3,12 @@ import Category from "@/backend/models/category";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
+  // Vérifier l'authentification
+  await isAuthenticatedUser(req, NextResponse);
+
+  // Vérifier le role
+  await authorizeRoles(NextResponse, "admin");
+
   // Connexion DB
   await dbConnect();
 
