@@ -43,11 +43,15 @@ export const SettingsProvider = ({ children }) => {
     try {
       setLoading(true);
 
+      console.log("Category data", categoryData);
+
       // Gérer le cas où on reçoit juste une string (compatibilité descendante)
       const requestData =
         typeof categoryData === "string"
           ? { categoryName: categoryData, isActive: false }
           : categoryData;
+
+      console.log("Requested Data", requestData);
 
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/settings/category`,
