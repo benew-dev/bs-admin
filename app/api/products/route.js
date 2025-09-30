@@ -51,6 +51,8 @@ export async function POST(req) {
   const bodyObject = req.body;
   console.log("Body got directly", bodyObject);
 
+  console.log("req user", req.user);
+
   const user = await User.findOne({ email: req.user.email }).select("_id");
 
   console.log("User found", user);
