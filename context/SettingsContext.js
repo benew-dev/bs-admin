@@ -177,8 +177,6 @@ export const SettingsProvider = ({ children }) => {
         error,
         loading,
         setCategories,
-        setDeliveryPrice,
-        newDeliveryPrice,
         newPaymentType,
         newCategory,
         toggleCategoryStatus,
