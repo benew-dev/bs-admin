@@ -43,20 +43,18 @@ export const SettingsProvider = ({ children }) => {
     try {
       setLoading(true);
 
-      console.log("Category data", categoryData);
-
       // Gérer le cas où on reçoit juste une string (compatibilité descendante)
       const requestData =
         typeof categoryData === "string"
           ? { categoryName: categoryData, isActive: false }
           : categoryData;
 
-      console.log("Requested Data", requestData);
-
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/settings/category`,
         requestData,
       );
+
+      console.log("Category added", data);
 
       if (data?.success) {
         router.push("/admin/settings");
@@ -87,6 +85,8 @@ export const SettingsProvider = ({ children }) => {
           },
         },
       );
+
+      console.log("Category status changed", data);
 
       if (data.success) {
         // Mettre à jour la liste des catégories localement
@@ -121,6 +121,8 @@ export const SettingsProvider = ({ children }) => {
       const { data } = await axios.delete(
         `${process.env.NEXT_PUBLIC_API_URL}/api/settings/category/${id}`,
       );
+
+      console.log("Category deleted", data);
 
       // Vérifier si la réponse contient un message de succès
       if (data?.message && data.message.includes("successfully")) {
