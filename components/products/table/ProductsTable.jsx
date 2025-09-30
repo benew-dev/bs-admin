@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
-'use client';
+"use client";
 
-import React, { useContext } from 'react';
-import { arrayHasData } from '@/helpers/helpers';
-import Image from 'next/image';
-import Link from 'next/link';
-import ProductContext from '@/context/ProductContext';
+import React, { useContext } from "react";
+import { arrayHasData } from "@/helpers/helpers";
+import Image from "next/image";
+import Link from "next/link";
+import ProductContext from "@/context/ProductContext";
 
 const ProductsTable = ({ products, itemCount, deleteHandler }) => {
   const { setProductImages } = useContext(ProductContext);
@@ -53,7 +53,7 @@ const ProductsTable = ({ products, itemCount, deleteHandler }) => {
                     src={
                       product?.images[0] !== undefined
                         ? product?.images[0]?.url
-                        : '/images/default_product.png'
+                        : "/images/default_product.png"
                     }
                     alt={product?.name}
                     title={product?.name}
@@ -63,7 +63,7 @@ const ProductsTable = ({ products, itemCount, deleteHandler }) => {
                   {product?.name}
                 </td>
                 <td
-                  className={`px-6 py-1 ${product?.stock <= 5 && 'bg-red-500'}`}
+                  className={`px-6 py-1 ${product?.stock <= 5 && "bg-red-500"}`}
                 >
                   {product?.stock}
                 </td>
@@ -74,11 +74,11 @@ const ProductsTable = ({ products, itemCount, deleteHandler }) => {
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
                       product?.isActive
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
                     }`}
                   >
-                    {product?.isActive ? 'Active' : 'Inactive'}
+                    {product?.isActive ? "Active" : "Inactive"}
                   </span>
                 </td>
                 <td className="px-6 py-2">

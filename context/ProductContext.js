@@ -3,6 +3,7 @@
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { createContext, useState } from "react";
+import { toast } from "react-toastify";
 
 const ProductContext = createContext();
 
@@ -106,6 +107,7 @@ export const ProductProvider = ({ children }) => {
       );
 
       if (data?.success) {
+        toast.success("Product deleted !");
         router.push(`/admin/products`);
         router.refresh();
       }
