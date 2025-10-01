@@ -69,7 +69,7 @@ const ProductsTable = ({ products, itemCount, deleteHandler }) => {
                 </td>
                 <td className="px-6 py-2">{product?.sold || 0}</td>
                 <td className="px-6 py-2">{product?.category?.categoryName}</td>
-                <td className="px-6 py-2">Fdj {product?.price}</td>
+                <td className="px-6 py-2">{product?.price} FDj</td>
                 <td className="px-6 py-2">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
