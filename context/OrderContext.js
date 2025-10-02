@@ -21,8 +21,6 @@ export const OrderProvider = ({ children }) => {
         orderData,
       );
 
-      console.log("data in update order", data);
-
       if (data?.success) {
         setUpdated(true);
 
