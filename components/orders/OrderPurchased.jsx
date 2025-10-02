@@ -1,33 +1,31 @@
 /* eslint-disable react/prop-types */
-'use client';
+"use client";
 
-import dynamic from 'next/dynamic';
-import Loading from '@/app/loading';
-import React, { useContext, useState } from 'react';
+import dynamic from "next/dynamic";
+import Loading from "@/app/loading";
+import React, { useState } from "react";
 
 const OrderPurchasedStats = dynamic(
-  () => import('./card/OrderPurchasedStats'),
+  () => import("./card/OrderPurchasedStats"),
   {
     loading: () => <Loading />,
   },
 );
 
-const OrdersPaidList = dynamic(() => import('./table/OrdersPaidList'), {
+const OrdersPaidList = dynamic(() => import("./table/OrdersPaidList"), {
   loading: () => <Loading />,
 });
 
-const OrdersUnpaidList = dynamic(() => import('./table/OrdersUnpaidList'), {
+const OrdersUnpaidList = dynamic(() => import("./table/OrdersUnpaidList"), {
   loading: () => <Loading />,
 });
 
-import { arrayHasData } from '@/helpers/helpers';
-import SettingsContext from '@/context/SettingsContext';
+import { arrayHasData } from "@/helpers/helpers";
 
 const OrderPurchased = ({ data }) => {
-  const { deliveryPrice } = useContext(SettingsContext);
   const [open, setOpen] = useState(false);
 
-  // Calcul des montants totaux avec totalAmount au lieu de amountPaid
+  // Calcul des montants totaux
   const totalAmountUnpaid = arrayHasData(data?.listOrdersUnpaidThisMonth)
     ? 0
     : data?.listOrdersUnpaidThisMonth?.reduce(
@@ -46,28 +44,14 @@ const OrderPurchased = ({ data }) => {
   const totalItemsUnpaid = arrayHasData(data?.listOrdersUnpaidThisMonth)
     ? 0
     : data?.listOrdersUnpaidThisMonth?.reduce(
-        (acc, currentValue) =>
-          acc +
-          (currentValue?.itemCount ||
-            currentValue?.orderItems?.reduce(
-              (sum, item) => sum + item.quantity,
-              0,
-            ) ||
-            0),
+        (acc, currentValue) => acc + (currentValue?.itemCount || 0),
         0,
       );
 
   const totalItemsPaid = arrayHasData(data?.listOrdersPaidThisMonth)
     ? 0
     : data?.listOrdersPaidThisMonth?.reduce(
-        (acc, currentValue) =>
-          acc +
-          (currentValue?.itemCount ||
-            currentValue?.orderItems?.reduce(
-              (sum, item) => sum + item.quantity,
-              0,
-            ) ||
-            0),
+        (acc, currentValue) => acc + (currentValue?.itemCount || 0),
         0,
       );
 
@@ -85,17 +69,7 @@ const OrderPurchased = ({ data }) => {
       </div>
       <hr className="my-2 mx-9" />
 
-      <OrderPurchasedStats
-        open={open}
-        ordersPaidCount={data?.ordersPaidCount}
-        ordersUnpaidCount={data?.ordersUnpaidCount}
-        processingOrdersCount={data?.processingOrdersCount}
-        shippedOrdersCount={data?.shippedOrdersCount}
-        totalOrdersPaidThisMonth={data?.totalOrdersPaidThisMonth}
-        totalOrdersUnpaidThisMonth={data?.totalOrdersUnpaidThisMonth}
-        totalOrdersProcessingThisMonth={data?.totalOrdersProcessingThisMonth}
-        totalOrdersShippedThisMonth={data?.totalOrdersShippedThisMonth}
-      />
+      <OrderPurchasedStats open={open} data={data} />
 
       <hr className="my-2 mx-9" />
 
@@ -108,16 +82,13 @@ const OrderPurchased = ({ data }) => {
             Total Amount: ${totalAmountPaid.toFixed(2)}
           </p>
           <p className="text-gray-600">
-            Total Items: {totalItemsPaid} • Orders:{' '}
+            Total Items: {totalItemsPaid} • Orders:{" "}
             {data?.listOrdersPaidThisMonth?.length || 0}
           </p>
         </div>
       </div>
 
-      <OrdersPaidList
-        listOrdersPaidThisMonth={data?.listOrdersPaidThisMonth}
-        deliveryPrice={deliveryPrice}
-      />
+      <OrdersPaidList listOrdersPaidThisMonth={data?.listOrdersPaidThisMonth} />
 
       <hr className="my-2 mx-9" />
 
@@ -130,7 +101,7 @@ const OrderPurchased = ({ data }) => {
             Total Amount: ${totalAmountUnpaid.toFixed(2)}
           </p>
           <p className="text-gray-600">
-            Total Items: {totalItemsUnpaid} • Orders:{' '}
+            Total Items: {totalItemsUnpaid} • Orders:{" "}
             {data?.listOrdersUnpaidThisMonth?.length || 0}
           </p>
         </div>
@@ -138,7 +109,6 @@ const OrderPurchased = ({ data }) => {
 
       <OrdersUnpaidList
         listOrdersUnpaidThisMonth={data?.listOrdersUnpaidThisMonth}
-        deliveryPrice={deliveryPrice}
       />
     </div>
   );

@@ -1,24 +1,24 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
-import { arrayHasData } from '@/helpers/helpers';
-import Link from 'next/link';
+import React from "react";
+import { arrayHasData } from "@/helpers/helpers";
+import Link from "next/link";
 
 const OrdersUnpaidList = ({ listOrdersUnpaidThisMonth }) => {
   // Fonction pour formater les dates
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   // Fonction pour calculer le temps écoulé
   const getTimeSinceCreation = (createdAt) => {
-    if (!createdAt) return 'N/A';
+    if (!createdAt) return "N/A";
     const now = new Date();
     const created = new Date(createdAt);
     const diffInHours = Math.floor((now - created) / (1000 * 60 * 60));
@@ -33,25 +33,25 @@ const OrdersUnpaidList = ({ listOrdersUnpaidThisMonth }) => {
 
   // Fonction pour obtenir la couleur de l'urgence
   const getUrgencyColor = (createdAt) => {
-    if (!createdAt) return 'text-gray-500';
+    if (!createdAt) return "text-gray-500";
     const now = new Date();
     const created = new Date(createdAt);
     const diffInHours = Math.floor((now - created) / (1000 * 60 * 60));
 
-    if (diffInHours > 72) return 'text-red-600 font-bold'; // Plus de 3 jours
-    if (diffInHours > 24) return 'text-orange-600 font-medium'; // Plus de 1 jour
-    return 'text-gray-600'; // Récent
+    if (diffInHours > 72) return "text-red-600 font-bold"; // Plus de 3 jours
+    if (diffInHours > 24) return "text-orange-600 font-medium"; // Plus de 1 jour
+    return "text-gray-600"; // Récent
   };
 
   // Fonction pour obtenir la couleur du statut de paiement
   const getPaymentStatusColor = (status) => {
     switch (status) {
-      case 'unpaid':
-        return 'text-red-600 bg-red-100';
-      case 'cancelled':
-        return 'text-gray-600 bg-gray-100';
+      case "unpaid":
+        return "text-red-600 bg-red-100";
+      case "cancelled":
+        return "text-gray-600 bg-gray-100";
       default:
-        return 'text-gray-600 bg-gray-100';
+        return "text-gray-600 bg-gray-100";
     }
   };
 
@@ -92,9 +92,6 @@ const OrdersUnpaidList = ({ listOrdersUnpaidThisMonth }) => {
               Payment Method
             </th>
             <th scope="col" className="px-4 py-3 font-semibold">
-              Shipping Type
-            </th>
-            <th scope="col" className="px-4 py-3 font-semibold">
               Created At
             </th>
             <th scope="col" className="px-4 py-3 font-semibold">
@@ -115,23 +112,18 @@ const OrdersUnpaidList = ({ listOrdersUnpaidThisMonth }) => {
                 {item?.orderNumber || `#${item?._id?.slice(-8)}`}
               </td>
               <td className="px-4 py-3 font-semibold text-red-600">
-                ${item?.totalAmount?.toFixed(2) || '0.00'}
+                ${item?.totalAmount?.toFixed(2) || "0.00"}
               </td>
               <td className="px-4 py-3 text-center">
                 <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                  {item?.itemCount ||
-                    item?.orderItems?.reduce(
-                      (sum, orderItem) => sum + orderItem.quantity,
-                      0,
-                    ) ||
-                    0}
+                  {item?.itemCount || 0}
                 </span>
               </td>
               <td className="px-4 py-3">
                 <span
                   className={`px-2 py-1 rounded text-xs font-medium ${getPaymentStatusColor(item?.paymentStatus)}`}
                 >
-                  {item?.paymentStatus?.toUpperCase() || 'UNPAID'}
+                  {item?.paymentStatus?.toUpperCase() || "UNPAID"}
                 </span>
               </td>
               <td className="px-4 py-3">
@@ -142,17 +134,6 @@ const OrdersUnpaidList = ({ listOrdersUnpaidThisMonth }) => {
                 ) : (
                   <span className="text-gray-400 italic text-xs">Not set</span>
                 )}
-              </td>
-              <td className="px-4 py-3">
-                <span
-                  className={`px-2 py-1 rounded text-xs font-medium ${
-                    item?.shippingInfo === undefined
-                      ? 'bg-purple-100 text-purple-700'
-                      : 'bg-blue-100 text-blue-700'
-                  }`}
-                >
-                  {item?.shippingInfo === undefined ? 'Pickup' : 'Delivery'}
-                </span>
               </td>
               <td className="px-4 py-3 text-gray-600 text-xs">
                 {formatDate(item?.createdAt)}
@@ -186,14 +167,14 @@ const OrdersUnpaidList = ({ listOrdersUnpaidThisMonth }) => {
           <div className="text-red-700">
             <span className="font-semibold">
               {listOrdersUnpaidThisMonth?.length || 0}
-            </span>{' '}
+            </span>{" "}
             unpaid orders this month
           </div>
           <div className="text-red-700 font-semibold">
             Potential Revenue: $
             {listOrdersUnpaidThisMonth
               ?.reduce((acc, order) => acc + (order?.totalAmount || 0), 0)
-              .toFixed(2) || '0.00'}
+              .toFixed(2) || "0.00"}
           </div>
         </div>
 
@@ -212,7 +193,7 @@ const OrdersUnpaidList = ({ listOrdersUnpaidThisMonth }) => {
                 <i className="fa fa-warning mr-1"></i>
                 <span className="font-semibold">
                   {urgentOrders.length}
-                </span>{' '}
+                </span>{" "}
                 orders need immediate attention (over 24h old)
               </div>
             );
