@@ -12,7 +12,6 @@ const SingleOrderInfo = dynamic(() => import("./SingleOrderInfo"), {
 });
 
 const UpdateOrder = memo(({ order }) => {
-  console.log("Order in UpdateOrder: ", order);
   const { updateOrder, error, clearErrors, updated, setUpdated } =
     useContext(OrderContext);
 

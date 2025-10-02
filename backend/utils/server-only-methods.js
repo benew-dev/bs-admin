@@ -101,8 +101,6 @@ export const getSingleOrder = async (id) => {
     },
   );
 
-  console.log("data: ", data);
-
   return data;
 };
 
