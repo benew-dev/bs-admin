@@ -19,6 +19,7 @@ class APIFilters {
   }
 
   filter() {
+    let queryCopy = {};
     console.log("queryStr in APIFilters", this.queryStr);
 
     if (this.queryStr.get("paymentStatus")) {
