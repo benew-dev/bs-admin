@@ -1,9 +1,18 @@
-import dbConnect from '@/backend/config/dbConnect';
-import Order from '@/backend/models/order';
-import { getMonthlyOrdersAnalytics } from '@/backend/pipelines/orderPipelines';
-import { NextResponse } from 'next/server';
+import dbConnect from "@/backend/config/dbConnect";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
+import Order from "@/backend/models/order";
+import { getMonthlyOrdersAnalytics } from "@/backend/pipelines/orderPipelines";
+import { NextResponse } from "next/server";
 
 export async function GET() {
+  // Vérifier l'authentification
+  await isAuthenticatedUser(req, NextResponse);
+
+  // Vérifier le role
+  await authorizeRoles(NextResponse, "admin");
   // Connexion DB
   await dbConnect();
   const currentMonth = new Date().getMonth() + 1;
@@ -16,10 +25,10 @@ export async function GET() {
     processingOrdersCount,
     shippedOrdersCount,
   ] = await Promise.all([
-    Order.countDocuments({ paymentStatus: 'paid' }),
-    Order.countDocuments({ paymentStatus: 'unpaid' }),
-    Order.countDocuments({ paymentStatus: 'paid', orderStatus: 'Processing' }),
-    Order.countDocuments({ paymentStatus: 'paid', orderStatus: 'Shipped' }),
+    Order.countDocuments({ paymentStatus: "paid" }),
+    Order.countDocuments({ paymentStatus: "unpaid" }),
+    Order.countDocuments({ paymentStatus: "paid", orderStatus: "Processing" }),
+    Order.countDocuments({ paymentStatus: "paid", orderStatus: "Shipped" }),
   ]);
 
   // Obtenir toutes les stats mensuelles en une seule requête

@@ -1,11 +1,20 @@
 import Order from "@/backend/models/order";
-import User from "@/backend/models/user";
 import Category from "@/backend/models/category";
 import { NextResponse } from "next/server";
 import dbConnect from "@/backend/config/dbConnect";
 import Product from "@/backend/models/product";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
 
 export async function GET(req, { params }) {
+  // Vérifier l'authentification
+  await isAuthenticatedUser(req, NextResponse);
+
+  // Vérifier le role
+  await authorizeRoles(NextResponse, "admin");
+
   const { id } = params;
 
   await dbConnect();
@@ -20,6 +29,12 @@ export async function GET(req, { params }) {
 }
 
 export async function PUT(req, { params }) {
+  // Vérifier l'authentification
+  await isAuthenticatedUser(req, NextResponse);
+
+  // Vérifier le role
+  await authorizeRoles(NextResponse, "admin");
+
   const { id } = params;
 
   await dbConnect();
@@ -30,26 +45,22 @@ export async function PUT(req, { params }) {
     return NextResponse.json({ message: "No Order found" }, { status: 404 });
   }
 
-  if (req.body.orderStatus) {
-    order = await Order.findByIdAndUpdate(id, {
-      orderStatus: req.body.orderStatus,
-    });
-  }
-
+  // Gestion de la mise à jour du statut de paiement
   if (req.body.paymentStatus) {
     const currentStatus = order.paymentStatus;
     const newStatus = req.body.paymentStatus;
 
     // Définir les transitions autorisées
     const allowedTransitions = {
-      unpaid: ["paid", "cancelled"],
+      unpaid: ["processing", "paid", "failed"],
+      processing: ["paid", "failed"],
       paid: ["refunded"],
       refunded: [], // Aucune transition autorisée
-      cancelled: [], // Aucune transition autorisée
+      failed: [], // Aucune transition autorisée
     };
 
     // Vérifier si la transition est autorisée
-    if (!allowedTransitions[currentStatus].includes(newStatus)) {
+    if (!allowedTransitions[currentStatus]?.includes(newStatus)) {
       return NextResponse.json(
         {
           success: false,
@@ -61,15 +72,18 @@ export async function PUT(req, { params }) {
 
     // Gestion des mises à jour de stock et sold selon le changement de statut
     try {
-      // Si on passe de 'unpaid' à 'paid' : ajouter aux ventes
-      if (currentStatus === "unpaid" && newStatus === "paid") {
+      // Si on passe de 'unpaid' ou 'processing' à 'paid' : ajouter aux ventes
+      if (
+        (currentStatus === "unpaid" || currentStatus === "processing") &&
+        newStatus === "paid"
+      ) {
         // Récupérer les produits avec leurs catégories
         const productIds = order.orderItems.map((item) => item.product);
         const products = await Product.find({
           _id: { $in: productIds },
         }).populate("category");
 
-        // Créer un map pour associer productId -> categoryId et quantity
+        // Créer un map pour associer categoryId -> quantity
         const categoryUpdates = new Map();
 
         order.orderItems.forEach((item) => {
@@ -89,7 +103,7 @@ export async function PUT(req, { params }) {
           }
         });
 
-        // Mise à jour des produits
+        // Mise à jour des produits (incrémenter sold uniquement)
         const bulkOpsForPaid = order.orderItems.map((item) => ({
           updateOne: {
             filter: { _id: item.product },
@@ -101,7 +115,7 @@ export async function PUT(req, { params }) {
           },
         }));
 
-        // Mise à jour des catégories
+        // Mise à jour des catégories (incrémenter sold)
         const bulkOpsForCategories = Array.from(categoryUpdates.entries()).map(
           ([categoryId, quantity]) => ({
             updateOne: {
@@ -125,6 +139,9 @@ export async function PUT(req, { params }) {
         }
 
         await Promise.all(promises);
+
+        // Mettre à jour paidAt
+        order.paidAt = Date.now();
       }
 
       // Si on passe de 'paid' à 'refunded' : annuler les ventes et restaurer le stock
@@ -135,7 +152,7 @@ export async function PUT(req, { params }) {
           _id: { $in: productIds },
         }).populate("category");
 
-        // Créer un map pour associer productId -> categoryId et quantity
+        // Créer un map pour associer categoryId -> quantity
         const categoryUpdates = new Map();
 
         order.orderItems.forEach((item) => {
@@ -155,20 +172,20 @@ export async function PUT(req, { params }) {
           }
         });
 
-        // Mise à jour des produits
+        // Mise à jour des produits (décrémenter sold, incrémenter stock)
         const bulkOpsForRefunded = order.orderItems.map((item) => ({
           updateOne: {
             filter: { _id: item.product },
             update: {
               $inc: {
                 sold: -item.quantity,
-                stock: item.quantity,
+                stock: item.quantity, // Restaurer le stock
               },
             },
           },
         }));
 
-        // Mise à jour des catégories (décrémenter)
+        // Mise à jour des catégories (décrémenter sold)
         const bulkOpsForCategories = Array.from(categoryUpdates.entries()).map(
           ([categoryId, quantity]) => ({
             updateOne: {
@@ -193,6 +210,22 @@ export async function PUT(req, { params }) {
 
         await Promise.all(promises);
       }
+
+      // Si on passe à 'failed' : marquer comme annulée
+      else if (newStatus === "failed") {
+        order.cancelledAt = Date.now();
+        if (req.body.cancelReason) {
+          order.cancelReason = req.body.cancelReason;
+        }
+      }
+
+      // Si on passe à 'refunded' : marquer comme annulée avec raison
+      else if (newStatus === "refunded") {
+        order.cancelledAt = Date.now();
+        if (req.body.cancelReason) {
+          order.cancelReason = req.body.cancelReason;
+        }
+      }
     } catch (error) {
       console.error("Erreur lors de la mise à jour du stock/sold:", error);
       return NextResponse.json(
@@ -206,14 +239,19 @@ export async function PUT(req, { params }) {
       );
     }
 
-    // Effectuer la mise à jour si la transition est valide
-    order = await Order.findByIdAndUpdate(
-      id,
-      {
-        paymentStatus: newStatus,
-      },
-      { new: true },
-    ); // Ajout de { new: true } pour retourner l'ordre mis à jour
+    // Effectuer la mise à jour du paymentStatus
+    order.paymentStatus = newStatus;
+
+    // Ajouter cancelReason si fourni
+    if (req.body.cancelReason) {
+      order.cancelReason = req.body.cancelReason;
+    }
+
+    // Sauvegarder les modifications
+    await order.save();
+
+    // Récupérer l'ordre mis à jour
+    order = await Order.findById(id);
   }
 
   return NextResponse.json(

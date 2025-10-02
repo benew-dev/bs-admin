@@ -1,4 +1,8 @@
 import dbConnect from "@/backend/config/dbConnect";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
 import Order from "@/backend/models/order";
 import { getMonthlyOrdersAnalytics } from "@/backend/pipelines/orderPipelines";
 import {
@@ -11,6 +15,12 @@ import APIFilters from "@/backend/utils/APIFilters";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
+  // Vérifier l'authentification
+  await isAuthenticatedUser(req, NextResponse);
+
+  // Vérifier le role
+  await authorizeRoles(NextResponse, "admin");
+
   // Connexion DB
   await dbConnect();
 
