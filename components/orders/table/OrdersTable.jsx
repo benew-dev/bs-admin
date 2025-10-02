@@ -84,12 +84,6 @@ const OrdersTable = ({ orders, itemCount }) => {
                     Méthode
                   </div>
                 </th>
-                <th scope="col" className="px-4 py-4">
-                  <div className="flex items-center gap-2">
-                    <i className="fa fa-user text-gray-500"></i>
-                    Client
-                  </div>
-                </th>
                 <th scope="col" className="px-4 py-4 text-center">
                   <div className="flex items-center justify-center gap-2">
                     <i className="fa fa-cog text-gray-500"></i>

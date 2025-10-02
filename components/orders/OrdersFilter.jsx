@@ -126,7 +126,7 @@ const OrdersFilter = ({ open, setLoading }) => {
                 type="checkbox"
                 value="cancelled"
                 className="h-4 w-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500 focus:ring-2"
-                defaultChecked={paymentFilter === "failed"}
+                defaultChecked={paymentFilter === "cancelled"}
                 onClick={(e) => handleClick(e.target)}
               />
               <span className="ml-3 flex items-center gap-2">

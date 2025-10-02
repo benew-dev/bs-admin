@@ -5,11 +5,11 @@ class APIFilters {
   }
 
   search() {
-    const keyword = this.queryStr.get('keyword')
+    const keyword = this.queryStr.get("keyword")
       ? {
           name: {
-            $regex: this.queryStr.get('keyword'),
-            $options: 'i',
+            $regex: this.queryStr.get("keyword"),
+            $options: "i",
           },
         }
       : {};
@@ -21,17 +21,17 @@ class APIFilters {
   filter() {
     const queryCopy = { ...this.queryStr };
 
-    const removeFields = ['keyword', 'page'];
+    const removeFields = ["keyword", "page"];
     removeFields.forEach((el) => delete queryCopy[el]);
 
     let output = {};
-    let prop = '';
+    let prop = "";
 
     for (let key in queryCopy) {
       if (!key.match(/\b(gt|gte|lt|lte)/)) {
         output[key] = queryCopy[key];
       } else {
-        prop = key.split('[')[0];
+        prop = key.split("[")[0];
 
         let operator = key.match(/\[(.*)\]/)[1];
 
@@ -44,12 +44,14 @@ class APIFilters {
     }
     // { price: { $gte: 100, $lte: 1000 } }
 
+    console.log("Output in APIFilters", output);
+
     this.query = this.query.find(output);
     return this;
   }
 
   pagination(resPerPage) {
-    const currentPage = Number(this.queryStr.get('page')) || 1;
+    const currentPage = Number(this.queryStr.get("page")) || 1;
     const skip = resPerPage * (currentPage - 1);
 
     this.query = this.query.limit(resPerPage).skip(skip);

@@ -64,18 +64,6 @@ const OrderItem = ({ order }) => {
         </div>
       </td>
 
-      {/* Client */}
-      <td className="px-4 py-3">
-        <div className="flex flex-col">
-          <span className="font-medium text-sm text-gray-900">
-            {order?.user?.name || "Client"}
-          </span>
-          <span className="text-xs text-gray-500 truncate max-w-[150px]">
-            {order?.user?.email || "N/A"}
-          </span>
-        </div>
-      </td>
-
       {/* Actions */}
       <td className="px-4 py-3">
         <div className="flex gap-2 justify-center">
