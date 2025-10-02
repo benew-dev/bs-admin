@@ -1,20 +1,86 @@
 /* eslint-disable react/prop-types */
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
 const OrderStatCard = ({ title, content, indication, color }) => {
+  // Définir les couleurs selon le type
+  const getColorClasses = (colorType) => {
+    switch (colorType) {
+      case "green":
+        return {
+          bg: "bg-green-100 hover:bg-green-200",
+          badge: "bg-white",
+          badgeText: "text-green-600",
+          border: "border-green-300",
+        };
+      case "blue":
+        return {
+          bg: "bg-blue-100 hover:bg-blue-200",
+          badge: "bg-white",
+          badgeText: "text-blue-600",
+          border: "border-blue-300",
+        };
+      case "purple":
+        return {
+          bg: "bg-purple-100 hover:bg-purple-200",
+          badge: "bg-white",
+          badgeText: "text-purple-600",
+          border: "border-purple-300",
+        };
+      case "teal":
+        return {
+          bg: "bg-teal-100 hover:bg-teal-200",
+          badge: "bg-white",
+          badgeText: "text-teal-600",
+          border: "border-teal-300",
+        };
+      case "orange":
+        return {
+          bg: "bg-orange-100 hover:bg-orange-200",
+          badge: "bg-white",
+          badgeText: "text-orange-600",
+          border: "border-orange-300",
+        };
+      default:
+        return {
+          bg: "bg-blue-100 hover:bg-blue-200",
+          badge: "bg-white",
+          badgeText: "text-blue-600",
+          border: "border-blue-300",
+        };
+    }
+  };
+
+  const colors = getColorClasses(color);
+
   return (
-    <div className="h-59 p-2 w-1/5 ml-2 mb-3 border border-gray-400 bg-blue-200 rounded-sm flex flex-col justify-evenly">
-      <div className="bg-white rounded-3xl pl-1 pr-6 w-fit">
+    <div
+      className={`
+        h-auto p-4 w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(20%-0.6rem)] 
+        border-2 ${colors.border} ${colors.bg} 
+        rounded-lg shadow-md hover:shadow-lg 
+        flex flex-col justify-between
+        transition-all duration-300 ease-in-out
+        transform hover:-translate-y-1
+      `}
+    >
+      {/* Badge du titre */}
+      <div className={`${colors.badge} rounded-full px-3 py-1 w-fit shadow-sm`}>
         <p
-          className={`${color !== undefined ? 'text-red-600' : 'text-green-600'} text-xs`}
+          className={`${colors.badgeText} text-xs font-semibold uppercase tracking-wide`}
         >
           {title}
         </p>
       </div>
-      <p className="text-gray-900 font-bold text-sm pt-3 pl-3">{content}</p>
-      <p className="text-gray-500 text-xs leading-none pt-4 pl-2 pb-2">
+
+      {/* Contenu principal */}
+      <p className="text-gray-900 font-bold text-2xl pt-4 pl-1 leading-tight">
+        {content}
+      </p>
+
+      {/* Indication */}
+      <p className="text-gray-600 text-xs font-medium pt-3 pl-1 pb-1">
         {indication}
       </p>
     </div>

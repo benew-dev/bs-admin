@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
-import OrderItem from './OrderItem';
+import React from "react";
+import OrderItem from "./OrderItem";
 
 const OrdersTable = ({ orders, itemCount }) => {
   // Vérifier si orders est un array valide avec des données
@@ -8,59 +8,97 @@ const OrdersTable = ({ orders, itemCount }) => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-lg ml-4 font-bold">Latest Orders from Clients</h1>
-        <p className="mr-4 font-bold text-lg">{itemCount || 0} Order(s)</p>
+      {/* Header du tableau avec compteur amélioré */}
+      <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+        <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+          <i className="fa fa-shopping-cart text-blue-600"></i>
+          Dernières Commandes
+        </h2>
+        <div className="flex items-center gap-2">
+          <span className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-sm">
+            {itemCount || 0}
+          </span>
+          <span className="text-sm text-gray-600 font-medium">
+            Commande{itemCount > 1 ? "s" : ""}
+          </span>
+        </div>
       </div>
 
+      {/* État vide avec design amélioré */}
       {itemCount === 0 && (
-        <div className="w-full mt-8 py-12 bg-gray-50 rounded-lg">
-          <div className="text-center">
-            <div className="mx-auto w-24 h-24 mb-4 text-gray-300">
-              <svg fill="currentColor" viewBox="0 0 24 24">
-                <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z" />
-                <path d="M9 8V17H11V8H9ZM13 8V17H15V8H13Z" />
+        <div className="w-full py-16 px-6">
+          <div className="max-w-md mx-auto text-center">
+            <div className="mx-auto w-24 h-24 mb-6 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
+              <svg
+                className="w-12 h-12 text-blue-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
               </svg>
             </div>
-            <p className="font-bold text-xl text-gray-600 mb-2">
-              No Orders Found
-            </p>
-            <p className="text-gray-500">
-              Orders will appear here when customers place them.
+            <h3 className="font-bold text-2xl text-gray-800 mb-3">
+              Aucune Commande
+            </h3>
+            <p className="text-gray-600 leading-relaxed">
+              Les commandes de vos clients apparaîtront ici dès qu'ils
+              effectueront leurs achats.
             </p>
           </div>
         </div>
       )}
 
+      {/* Tableau des commandes avec design amélioré */}
       {hasOrders ? (
-        <div className="overflow-x-auto shadow-sm border border-gray-200 rounded-lg">
-          <table className="w-full text-sm text-left bg-white">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs font-semibold uppercase bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border-b-2 border-gray-300">
               <tr>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Order Number
+                <th scope="col" className="px-4 py-4">
+                  <div className="flex items-center gap-2">
+                    <i className="fa fa-hashtag text-gray-500"></i>
+                    Commande
+                  </div>
                 </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Total Amount
+                <th scope="col" className="px-4 py-4">
+                  <div className="flex items-center gap-2">
+                    <i className="fa fa-dollar-sign text-gray-500"></i>
+                    Montant
+                  </div>
                 </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Payment Status
+                <th scope="col" className="px-4 py-4">
+                  <div className="flex items-center gap-2">
+                    <i className="fa fa-check-circle text-gray-500"></i>
+                    Statut Paiement
+                  </div>
                 </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Payment Method
+                <th scope="col" className="px-4 py-4">
+                  <div className="flex items-center gap-2">
+                    <i className="fa fa-credit-card text-gray-500"></i>
+                    Méthode
+                  </div>
                 </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Shipping Type
+                <th scope="col" className="px-4 py-4">
+                  <div className="flex items-center gap-2">
+                    <i className="fa fa-user text-gray-500"></i>
+                    Client
+                  </div>
                 </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Order Status
-                </th>
-                <th scope="col" className="px-6 py-4 font-semibold text-center">
-                  Actions
+                <th scope="col" className="px-4 py-4 text-center">
+                  <div className="flex items-center justify-center gap-2">
+                    <i className="fa fa-cog text-gray-500"></i>
+                    Actions
+                  </div>
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 bg-white">
               {orders.map((order) => (
                 <OrderItem key={order?._id} order={order} />
               ))}
@@ -68,38 +106,56 @@ const OrdersTable = ({ orders, itemCount }) => {
           </table>
         </div>
       ) : (
-        <div className="overflow-x-auto shadow-sm border border-gray-200 rounded-lg">
-          <table className="w-full text-sm text-left bg-white">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
-              <tr>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Order Number
-                </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Total Amount
-                </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Payment Status
-                </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Payment Method
-                </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Shipping Type
-                </th>
-                <th scope="col" className="px-6 py-4 font-semibold">
-                  Order Status
-                </th>
-                <th scope="col" className="px-6 py-4 font-semibold text-center">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              <OrderItem key={orders?._id} order={orders} />
-            </tbody>
-          </table>
-        </div>
+        !hasOrders &&
+        itemCount !== 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs font-semibold uppercase bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border-b-2 border-gray-300">
+                <tr>
+                  <th scope="col" className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <i className="fa fa-hashtag text-gray-500"></i>
+                      Commande
+                    </div>
+                  </th>
+                  <th scope="col" className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <i className="fa fa-dollar-sign text-gray-500"></i>
+                      Montant
+                    </div>
+                  </th>
+                  <th scope="col" className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <i className="fa fa-check-circle text-gray-500"></i>
+                      Statut Paiement
+                    </div>
+                  </th>
+                  <th scope="col" className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <i className="fa fa-credit-card text-gray-500"></i>
+                      Méthode
+                    </div>
+                  </th>
+                  <th scope="col" className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <i className="fa fa-user text-gray-500"></i>
+                      Client
+                    </div>
+                  </th>
+                  <th scope="col" className="px-4 py-4 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <i className="fa fa-cog text-gray-500"></i>
+                      Actions
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 bg-white">
+                <OrderItem key={orders?._id} order={orders} />
+              </tbody>
+            </table>
+          </div>
+        )
       )}
     </div>
   );

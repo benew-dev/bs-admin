@@ -42,20 +42,18 @@ export async function GET(req) {
     totalPages = Number.isInteger(result) ? result : Math.ceil(result);
   }
 
-  // NOUVELLE IMPLÉMENTATION : Une seule requête pour toutes les stats
+  // Stats mensuelles
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
-  // Obtenir toutes les stats en une seule requête
   const monthlyStats = await getMonthlyOrdersAnalytics(
     currentMonth,
     currentYear,
   );
 
-  // Stats supplémentaires (depuis le début, pas seulement ce mois)
-  const deliveredOrdersCount = await Order.countDocuments({
+  // Stats supplémentaires basées sur paymentStatus uniquement
+  const paidOrdersCount = await Order.countDocuments({
     paymentStatus: "paid",
-    orderStatus: "Delivered",
   });
 
   // Descendant List of Product Sold Since The Beginning
@@ -81,7 +79,7 @@ export async function GET(req) {
         descListProductSoldThisMonth,
         descListCategorySoldSinceBeginning,
         descListProductSoldSinceBeginning,
-        // Utilisation des nouvelles stats
+        // Stats basées sur le nouveau modèle
         totalOrdersUnpaidThisMonth: [
           { totalOrdersUnpaid: monthlyStats.totalOrdersUnpaid },
         ],
@@ -99,12 +97,15 @@ export async function GET(req) {
   } else {
     return NextResponse.json(
       {
-        // Utilisation des nouvelles stats
-        totalOrdersDeliveredThisMonth: [
-          { totalOrdersDelivered: monthlyStats.totalOrdersDelivered },
-        ],
-        deliveredOrdersCount,
+        // Stats adaptées au nouveau modèle (sans orderStatus)
+        paidOrdersCount,
         totalOrdersThisMonth: [{ totalOrders: monthlyStats.totalOrders }],
+        totalOrdersPaidThisMonth: [
+          { totalOrdersPaid: monthlyStats.totalOrdersPaid },
+        ],
+        totalOrdersUnpaidThisMonth: [
+          { totalOrdersUnpaid: monthlyStats.totalOrdersUnpaid },
+        ],
         totalPages,
         ordersCount,
         filteredOrdersCount,

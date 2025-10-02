@@ -1,5 +1,5 @@
-import User from '../models/user';
-import Order from '../models/order';
+import User from "../models/user";
+import Order from "../models/order";
 
 /**
  * Helper pour générer les ranges de dates pour un mois donné
@@ -10,7 +10,7 @@ import Order from '../models/order';
 const getMonthDateRange = (month, year) => {
   // Validation des paramètres
   if (month < 1 || month > 12) {
-    throw new Error('Month must be between 1 and 12');
+    throw new Error("Month must be between 1 and 12");
   }
 
   const startDate = new Date(year, month - 1, 1);
@@ -21,13 +21,14 @@ const getMonthDateRange = (month, year) => {
 /**
  * Méthode principale pour obtenir toutes les statistiques utilisateurs
  * Utilise $facet pour optimiser les performances
+ * ADAPTÉ AU NOUVEAU MODÈLE : Sans taxAmount, shippingAmount
  */
 export const getUserAnalytics = async (month = null, year = null) => {
   try {
     const pipeline = [];
 
     // Filtre de base pour les commandes payées
-    const matchStage = { paymentStatus: 'paid' };
+    const matchStage = { paymentStatus: "paid" };
 
     // Ajouter le filtre de date si fourni
     if (month && year) {
@@ -41,32 +42,30 @@ export const getUserAnalytics = async (month = null, year = null) => {
         $facet: {
           // Total des utilisateurs uniques ayant acheté
           uniqueBuyers: [
-            { $group: { _id: '$user' } },
-            { $count: 'totalUsers' },
+            { $group: { _id: "$user" } },
+            { $count: "totalUsers" },
           ],
 
           // Top acheteur(s) avec détails
           topBuyers: [
             {
               $group: {
-                _id: '$user',
-                totalSpent: { $sum: '$totalAmount' },
+                _id: "$user",
+                totalSpent: { $sum: "$totalAmount" },
                 totalOrders: { $sum: 1 },
-                avgOrderValue: { $avg: '$totalAmount' },
-                totalTaxes: { $sum: '$taxAmount' },
-                totalShipping: { $sum: '$shippingAmount' },
-                firstPurchase: { $min: '$createdAt' },
-                lastPurchase: { $max: '$createdAt' },
+                avgOrderValue: { $avg: "$totalAmount" },
+                firstPurchase: { $min: "$createdAt" },
+                lastPurchase: { $max: "$createdAt" },
               },
             },
             { $sort: { totalSpent: -1 } },
             { $limit: 10 },
             {
               $lookup: {
-                from: 'users',
-                localField: '_id',
-                foreignField: '_id',
-                as: 'userInfo',
+                from: "users",
+                localField: "_id",
+                foreignField: "_id",
+                as: "userInfo",
               },
             },
             {
@@ -75,11 +74,9 @@ export const getUserAnalytics = async (month = null, year = null) => {
                 totalSpent: 1,
                 totalOrders: 1,
                 avgOrderValue: 1,
-                totalTaxes: 1,
-                totalShipping: 1,
                 firstPurchase: 1,
                 lastPurchase: 1,
-                result: { $arrayElemAt: ['$userInfo', 0] },
+                result: { $arrayElemAt: ["$userInfo", 0] },
               },
             },
           ],
@@ -89,10 +86,10 @@ export const getUserAnalytics = async (month = null, year = null) => {
             {
               $group: {
                 _id: null,
-                totalRevenue: { $sum: '$totalAmount' },
+                totalRevenue: { $sum: "$totalAmount" },
                 totalOrders: { $sum: 1 },
-                avgOrderValue: { $avg: '$totalAmount' },
-                uniqueBuyers: { $addToSet: '$user' },
+                avgOrderValue: { $avg: "$totalAmount" },
+                uniqueBuyers: { $addToSet: "$user" },
               },
             },
             {
@@ -101,7 +98,7 @@ export const getUserAnalytics = async (month = null, year = null) => {
                 totalRevenue: 1,
                 totalOrders: 1,
                 avgOrderValue: 1,
-                uniqueBuyersCount: { $size: '$uniqueBuyers' },
+                uniqueBuyersCount: { $size: "$uniqueBuyers" },
               },
             },
           ],
@@ -112,7 +109,7 @@ export const getUserAnalytics = async (month = null, year = null) => {
     const result = await Order.aggregate(pipeline, { allowDiskUse: true });
     return result[0] || { uniqueBuyers: [], topBuyers: [], periodStats: [] };
   } catch (error) {
-    console.error('Error in getUserAnalytics:', error);
+    console.error("Error in getUserAnalytics:", error);
     throw error;
   }
 };
@@ -125,7 +122,7 @@ export const getUserRegistrationStats = async (month = null, year = null) => {
     const pipeline = [];
 
     // Filtre de base pour les utilisateurs clients
-    const matchStage = { role: 'user' };
+    const matchStage = { role: "user" };
 
     // Ajouter le filtre de date si fourni
     if (month && year) {
@@ -138,7 +135,7 @@ export const getUserRegistrationStats = async (month = null, year = null) => {
       {
         $facet: {
           // Total des inscriptions
-          totalRegistrations: [{ $count: 'totalUsers' }],
+          totalRegistrations: [{ $count: "totalUsers" }],
 
           // Tendance par jour (pour le mois en cours)
           dailyTrend:
@@ -146,7 +143,7 @@ export const getUserRegistrationStats = async (month = null, year = null) => {
               ? [
                   {
                     $group: {
-                      _id: { $dayOfMonth: '$createdAt' },
+                      _id: { $dayOfMonth: "$createdAt" },
                       count: { $sum: 1 },
                     },
                   },
@@ -161,16 +158,16 @@ export const getUserRegistrationStats = async (month = null, year = null) => {
                 _id: null,
                 total: { $sum: 1 },
                 verified: {
-                  $sum: { $cond: ['$verified', 1, 0] },
+                  $sum: { $cond: ["$verified", 1, 0] },
                 },
                 unverified: {
-                  $sum: { $cond: ['$verified', 0, 1] },
+                  $sum: { $cond: ["$verified", 0, 1] },
                 },
                 active: {
-                  $sum: { $cond: ['$isActive', 1, 0] },
+                  $sum: { $cond: ["$isActive", 1, 0] },
                 },
-                firstRegistration: { $min: '$createdAt' },
-                lastRegistration: { $max: '$createdAt' },
+                firstRegistration: { $min: "$createdAt" },
+                lastRegistration: { $max: "$createdAt" },
               },
             },
           ],
@@ -187,7 +184,7 @@ export const getUserRegistrationStats = async (month = null, year = null) => {
       }
     );
   } catch (error) {
-    console.error('Error in getUserRegistrationStats:', error);
+    console.error("Error in getUserRegistrationStats:", error);
     throw error;
   }
 };
@@ -195,6 +192,7 @@ export const getUserRegistrationStats = async (month = null, year = null) => {
 /**
  * MÉTHODES DE COMPATIBILITÉ - À DÉPRÉCIER PROGRESSIVEMENT
  * Ces méthodes gardent la même signature que l'ancienne version
+ * @deprecated - Utiliser getUserAnalytics ou getUserRegistrationStats à la place
  */
 
 export const usersRegisteredPerMonthPipeline = async (month, year) => {
@@ -238,7 +236,6 @@ export const usersThatBoughtMostThisMonthPipeline = async (month, year) => {
     return analytics.topBuyers.map((buyer) => ({
       _id: buyer._id,
       totalPurchases: buyer.totalSpent, // Montant total et non nombre de commandes
-      totalTaxes: buyer.totalTaxes || 0,
       result: buyer.result ? [buyer.result] : [],
     }));
   }
@@ -274,7 +271,7 @@ export const getUsersComprehensiveReport = async (options = {}) => {
         userStats: [
           {
             $group: {
-              _id: '$role',
+              _id: "$role",
               count: { $sum: 1 },
             },
           },
@@ -306,10 +303,10 @@ export const getUsersComprehensiveReport = async (options = {}) => {
               _id: null,
               total: { $sum: 1 },
               verified: {
-                $sum: { $cond: ['$verified', 1, 0] },
+                $sum: { $cond: ["$verified", 1, 0] },
               },
               verificationRate: {
-                $avg: { $cond: ['$verified', 1, 0] },
+                $avg: { $cond: ["$verified", 1, 0] },
               },
             },
           },
@@ -322,11 +319,11 @@ export const getUsersComprehensiveReport = async (options = {}) => {
               _id: null,
               total: { $sum: 1 },
               active: {
-                $sum: { $cond: ['$isActive', 1, 0] },
+                $sum: { $cond: ["$isActive", 1, 0] },
               },
               hasLoggedIn: {
                 $sum: {
-                  $cond: [{ $ne: ['$lastLogin', null] }, 1, 0],
+                  $cond: [{ $ne: ["$lastLogin", null] }, 1, 0],
                 },
               },
               loggedInLast30Days: {
@@ -334,7 +331,7 @@ export const getUsersComprehensiveReport = async (options = {}) => {
                   $cond: [
                     {
                       $gte: [
-                        '$lastLogin',
+                        "$lastLogin",
                         new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
                       ],
                     },
@@ -352,13 +349,14 @@ export const getUsersComprehensiveReport = async (options = {}) => {
     const result = await User.aggregate(pipeline);
     return result[0] || {};
   } catch (error) {
-    console.error('Error in getUsersComprehensiveReport:', error);
+    console.error("Error in getUsersComprehensiveReport:", error);
     throw error;
   }
 };
 
 /**
  * Obtenir les meilleurs clients avec leurs statistiques d'achat détaillées
+ * ADAPTÉ AU NOUVEAU MODÈLE : Sans taxAmount, shippingAmount
  */
 export const getTopCustomersWithDetails = async (options = {}) => {
   const {
@@ -373,7 +371,7 @@ export const getTopCustomersWithDetails = async (options = {}) => {
     const pipeline = [];
 
     // Filtre de base
-    const matchStage = { paymentStatus: 'paid' };
+    const matchStage = { paymentStatus: "paid" };
     if (startDate && endDate) {
       matchStage.createdAt = { $gte: startDate, $lt: endDate };
     }
@@ -382,19 +380,19 @@ export const getTopCustomersWithDetails = async (options = {}) => {
       { $match: matchStage },
       {
         $group: {
-          _id: '$user',
-          totalSpent: { $sum: '$totalAmount' },
+          _id: "$user",
+          totalSpent: { $sum: "$totalAmount" },
           orderCount: { $sum: 1 },
-          avgOrderValue: { $avg: '$totalAmount' },
-          maxOrderValue: { $max: '$totalAmount' },
-          minOrderValue: { $min: '$totalAmount' },
-          totalItems: { $sum: { $size: '$orderItems' } },
-          firstPurchase: { $min: '$createdAt' },
-          lastPurchase: { $max: '$createdAt' },
-          orderIds: { $push: '$_id' },
+          avgOrderValue: { $avg: "$totalAmount" },
+          maxOrderValue: { $max: "$totalAmount" },
+          minOrderValue: { $min: "$totalAmount" },
+          totalItems: { $sum: { $size: "$orderItems" } },
+          firstPurchase: { $min: "$createdAt" },
+          lastPurchase: { $max: "$createdAt" },
+          orderIds: { $push: "$_id" },
           // Optionnel : collecter les produits achetés
           ...(includeProducts && {
-            products: { $push: '$orderItems' },
+            products: { $push: "$orderItems" },
           }),
         },
       },
@@ -412,10 +410,10 @@ export const getTopCustomersWithDetails = async (options = {}) => {
       { $limit: limit },
       {
         $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'userDetails',
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "userDetails",
         },
       },
       {
@@ -431,19 +429,19 @@ export const getTopCustomersWithDetails = async (options = {}) => {
           lastPurchase: 1,
           daysSinceFirstPurchase: {
             $divide: [
-              { $subtract: ['$lastPurchase', '$firstPurchase'] },
+              { $subtract: ["$lastPurchase", "$firstPurchase"] },
               1000 * 60 * 60 * 24,
             ],
           },
-          user: { $arrayElemAt: ['$userDetails', 0] },
-          recentOrders: { $slice: ['$orderIds', -5] }, // 5 dernières commandes
+          user: { $arrayElemAt: ["$userDetails", 0] },
+          recentOrders: { $slice: ["$orderIds", -5] }, // 5 dernières commandes
           ...(includeProducts && {
             uniqueProducts: {
               $size: {
                 $reduce: {
-                  input: '$products',
+                  input: "$products",
                   initialValue: [],
-                  in: { $setUnion: ['$$value', '$$this'] },
+                  in: { $setUnion: ["$$value", "$$this"] },
                 },
               },
             },
@@ -454,13 +452,14 @@ export const getTopCustomersWithDetails = async (options = {}) => {
 
     return await Order.aggregate(pipeline, { allowDiskUse: true });
   } catch (error) {
-    console.error('Error in getTopCustomersWithDetails:', error);
+    console.error("Error in getTopCustomersWithDetails:", error);
     throw error;
   }
 };
 
 /**
  * Analyser le comportement d'achat des utilisateurs
+ * ADAPTÉ AU NOUVEAU MODÈLE : Sans taxAmount, shippingAmount
  */
 export const analyzeUserPurchaseBehavior = async (userId) => {
   try {
@@ -468,7 +467,7 @@ export const analyzeUserPurchaseBehavior = async (userId) => {
       {
         $match: {
           user: userId,
-          paymentStatus: 'paid',
+          paymentStatus: "paid",
         },
       },
       {
@@ -478,12 +477,12 @@ export const analyzeUserPurchaseBehavior = async (userId) => {
             {
               $group: {
                 _id: null,
-                totalSpent: { $sum: '$totalAmount' },
+                totalSpent: { $sum: "$totalAmount" },
                 orderCount: { $sum: 1 },
-                avgOrderValue: { $avg: '$totalAmount' },
-                totalItems: { $sum: { $size: '$orderItems' } },
-                firstPurchase: { $min: '$createdAt' },
-                lastPurchase: { $max: '$createdAt' },
+                avgOrderValue: { $avg: "$totalAmount" },
+                totalItems: { $sum: { $size: "$orderItems" } },
+                firstPurchase: { $min: "$createdAt" },
+                lastPurchase: { $max: "$createdAt" },
               },
             },
           ],
@@ -493,30 +492,30 @@ export const analyzeUserPurchaseBehavior = async (userId) => {
             {
               $group: {
                 _id: {
-                  year: { $year: '$createdAt' },
-                  month: { $month: '$createdAt' },
+                  year: { $year: "$createdAt" },
+                  month: { $month: "$createdAt" },
                 },
-                spent: { $sum: '$totalAmount' },
+                spent: { $sum: "$totalAmount" },
                 orders: { $sum: 1 },
               },
             },
-            { $sort: { '_id.year': -1, '_id.month': -1 } },
+            { $sort: { "_id.year": -1, "_id.month": -1 } },
             { $limit: 12 },
           ],
 
           // Produits favoris
           favoriteProducts: [
-            { $unwind: '$orderItems' },
+            { $unwind: "$orderItems" },
             {
               $group: {
-                _id: '$orderItems.product',
-                productName: { $first: '$orderItems.name' },
-                category: { $first: '$orderItems.category' },
+                _id: "$orderItems.product",
+                productName: { $first: "$orderItems.name" },
+                category: { $first: "$orderItems.category" },
                 timesPurchased: { $sum: 1 },
-                totalQuantity: { $sum: '$orderItems.quantity' },
+                totalQuantity: { $sum: "$orderItems.quantity" },
                 totalSpent: {
                   $sum: {
-                    $multiply: ['$orderItems.price', '$orderItems.quantity'],
+                    $multiply: ["$orderItems.price", "$orderItems.quantity"],
                   },
                 },
               },
@@ -531,7 +530,7 @@ export const analyzeUserPurchaseBehavior = async (userId) => {
     const result = await Order.aggregate(pipeline);
     return result[0] || {};
   } catch (error) {
-    console.error('Error in analyzeUserPurchaseBehavior:', error);
+    console.error("Error in analyzeUserPurchaseBehavior:", error);
     throw error;
   }
 };
@@ -541,14 +540,14 @@ export const analyzeUserPurchaseBehavior = async (userId) => {
  */
 export const getUserStatsWithExplain = async (month, year) => {
   const pipeline = [];
-  const matchStage = { role: 'user' };
+  const matchStage = { role: "user" };
 
   if (month && year) {
     const { startDate, endDate } = getMonthDateRange(month, year);
     matchStage.createdAt = { $gte: startDate, $lt: endDate };
   }
 
-  pipeline.push({ $match: matchStage }, { $count: 'total' });
+  pipeline.push({ $match: matchStage }, { $count: "total" });
 
-  return await User.aggregate(pipeline).explain('executionStats');
+  return await User.aggregate(pipeline).explain("executionStats");
 };

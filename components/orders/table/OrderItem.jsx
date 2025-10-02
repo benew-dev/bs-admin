@@ -1,68 +1,89 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
-import Link from 'next/link';
-import PaymentBox from './PaymentBox';
+import React from "react";
+import Link from "next/link";
+import PaymentBox from "./PaymentBox";
 
 const OrderItem = ({ order }) => {
-  // Fonction pour obtenir la couleur du statut de commande
-  const getOrderStatusColor = (status) => {
-    switch (status) {
-      case 'Unpaid':
-        return 'text-red-500';
-      case 'Processing':
-        return 'text-black-500';
-      case 'Shipped':
-        return 'text-blue-500';
-      case 'Delivered':
-        return 'text-green-500';
-      case 'Cancelled':
-        return 'text-gray-500';
-      case 'Returned':
-        return 'text-orange-500';
-      default:
-        return 'text-gray-600';
+  // Formater la date de création
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      return new Date(dateString).toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    } catch {
+      return "N/A";
     }
   };
 
+  // Calculer le nombre total d'articles
+  const totalItems =
+    order?.orderItems?.reduce((sum, item) => sum + (item.quantity || 0), 0) ||
+    0;
+
   return (
-    <tr className="bg-white hover:bg-gray-50 transition-colors">
-      <td className="px-3 py-2 font-mono text-sm">
-        {order?.orderNumber || order?._id}
+    <tr className="bg-white hover:bg-blue-50 transition-colors duration-150">
+      {/* Numéro de commande */}
+      <td className="px-4 py-3">
+        <div className="flex flex-col">
+          <span className="font-mono text-sm font-semibold text-gray-900">
+            {order?.orderNumber || order?._id?.substring(0, 12)}
+          </span>
+          <span className="text-xs text-gray-500 mt-1">
+            {formatDate(order?.createdAt)}
+          </span>
+        </div>
       </td>
-      <td className="px-3 py-2 font-semibold">
-        ${order?.totalAmount?.toFixed(2) || '0.00'}
+
+      {/* Montant total */}
+      <td className="px-4 py-3">
+        <div className="flex flex-col">
+          <span className="font-bold text-lg text-blue-600">
+            ${order?.totalAmount?.toFixed(2) || "0.00"}
+          </span>
+          <span className="text-xs text-gray-500">
+            {totalItems} article{totalItems > 1 ? "s" : ""}
+          </span>
+        </div>
       </td>
+
+      {/* Statut de paiement */}
       <PaymentBox order={order} />
-      <td className="px-3 py-2">
-        {order?.paymentInfo?.typePayment?.toUpperCase() || 'N/A'}
+
+      {/* Méthode de paiement */}
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+            <i className="fa fa-credit-card text-blue-600 text-xs"></i>
+          </div>
+          <span className="font-medium text-sm text-gray-700">
+            {order?.paymentInfo?.typePayment?.toUpperCase() || "N/A"}
+          </span>
+        </div>
       </td>
-      <td className="px-3 py-2">
-        <span
-          className={`px-2 py-1 rounded text-xs font-medium ${
-            order?.shippingInfo === undefined
-              ? 'bg-blue-100 text-blue-700'
-              : 'bg-green-100 text-green-700'
-          }`}
-        >
-          {order?.shippingInfo === undefined ? 'Pickup' : 'Delivery'}
-        </span>
+
+      {/* Client */}
+      <td className="px-4 py-3">
+        <div className="flex flex-col">
+          <span className="font-medium text-sm text-gray-900">
+            {order?.user?.name || "Client"}
+          </span>
+          <span className="text-xs text-gray-500 truncate max-w-[150px]">
+            {order?.user?.email || "N/A"}
+          </span>
+        </div>
       </td>
-      {order?.shippingInfo !== undefined ? (
-        <td
-          className={`px-3 py-2 font-medium ${getOrderStatusColor(order?.orderStatus)}`}
-        >
-          {order?.orderStatus}
-        </td>
-      ) : (
-        <td className="px-3 py-2 text-gray-400 italic">None</td>
-      )}
-      <td className="px-3 py-2">
-        <div className="flex gap-2">
+
+      {/* Actions */}
+      <td className="px-4 py-3">
+        <div className="flex gap-2 justify-center">
           <Link
             href={`/admin/orders/${order?._id}`}
-            className="px-2 py-2 inline-block text-yellow-600 bg-white shadow-sm border border-gray-200 rounded-md hover:bg-yellow-50 hover:border-yellow-300 cursor-pointer transition-colors"
+            className="group relative px-3 py-2 inline-flex items-center justify-center text-white bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-lg hover:from-yellow-500 hover:to-yellow-600 transition-all duration-200 shadow-sm hover:shadow-md"
             aria-label={`Edit order ${order?.orderNumber || order?._id}`}
-            title="Edit order"
+            title="Modifier la commande"
           >
             <i className="fa fa-pencil" aria-hidden="true"></i>
           </Link>
