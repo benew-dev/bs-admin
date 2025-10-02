@@ -20,7 +20,7 @@ export async function GET(req, { params }) {
 
   await dbConnect();
 
-  const order = await Order.findById(id).populate("name phone email");
+  const order = await Order.findById(id).populate("user", "name phone email");
 
   if (!order) {
     return NextResponse.json({ message: "No Order found" }, { status: 404 });
