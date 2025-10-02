@@ -12,110 +12,230 @@ const ProductsTable = ({ products, itemCount, deleteHandler }) => {
 
   return (
     <div>
-      <h3 className="text-xl my-2 ml-4 font-bold">{itemCount} Product(s)</h3>
+      {/* Header du tableau avec compteur amélioré */}
+      <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+        <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+          <i className="fa fa-box text-blue-600"></i>
+          Inventaire des Produits
+        </h2>
+        <div className="flex items-center gap-2">
+          <span className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-sm">
+            {itemCount || 0}
+          </span>
+          <span className="text-sm text-gray-600 font-medium">
+            Produit{itemCount > 1 ? "s" : ""}
+          </span>
+        </div>
+      </div>
+
+      {/* État vide avec design amélioré */}
       {arrayHasData(products) ? (
-        <div className="w-full">
-          <p className="font-bold text-xl text-center">No Products found</p>
+        <div className="w-full py-16 px-6">
+          <div className="max-w-md mx-auto text-center">
+            <div className="mx-auto w-24 h-24 mb-6 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
+              <svg
+                className="w-12 h-12 text-blue-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                />
+              </svg>
+            </div>
+            <h3 className="font-bold text-2xl text-gray-800 mb-3">
+              Aucun Produit
+            </h3>
+            <p className="text-gray-600 leading-relaxed">
+              Ajoutez vos premiers produits pour commencer à gérer votre
+              inventaire.
+            </p>
+          </div>
         </div>
       ) : (
-        <table className="w-full text-sm text-left">
-          <thead className="text-l text-gray-700 uppercase">
-            <tr>
-              <th scope="col" className="px-6 py-3">
-                Name
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Stock
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Sold
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Category
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Price
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Status
-              </th>
-              <th scope="col" className="px-6 py-3">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {products?.map((product) => (
-              <tr className="bg-white" key={product._id}>
-                <td className="flex items-end px-6 py-2">
-                  <Image
-                    className="w-7 h-7 rounded-full mr-4"
-                    src={
-                      product?.images[0] !== undefined
-                        ? product?.images[0]?.url
-                        : "/images/default_product.png"
-                    }
-                    alt={product?.name}
-                    title={product?.name}
-                    width={7}
-                    height={7}
-                  />
-                  {product?.name}
-                </td>
-                <td
-                  className={`px-6 py-1 ${product?.stock <= 5 && "bg-red-500"}`}
-                >
-                  {product?.stock}
-                </td>
-                <td className="px-6 py-2">{product?.sold || 0}</td>
-                <td className="px-6 py-2">{product?.category?.categoryName}</td>
-                <td className="px-6 py-2">{product?.price} FDj</td>
-                <td className="px-6 py-2">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      product?.isActive
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {product?.isActive ? "Active" : "Inactive"}
-                  </span>
-                </td>
-                <td className="px-6 py-2">
-                  <div>
-                    <Link
-                      href={`/admin/products/${product?._id}/profile`}
-                      className="px-2 py-2 inline-block text-blue-600 bg-white shadow-xs border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer mr-2"
-                    >
-                      <i className="fa fa-eye" aria-hidden="true"></i>
-                    </Link>
-
-                    <Link
-                      href={`/admin/products/${product?._id}/upload_images`}
-                      onClick={() => setProductImages(product?.images)}
-                      className="px-2 py-2 inline-block text-green-600 bg-white shadow-xs border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer mr-2"
-                    >
-                      <i className="fa fa-image" aria-hidden="true"></i>
-                    </Link>
-
-                    <Link
-                      href={`/admin/products/${product?._id}`}
-                      className="px-2 py-2 inline-block text-yellow-600 bg-white shadow-xs border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer mr-2"
-                    >
-                      <i className="fa fa-pencil" aria-hidden="true"></i>
-                    </Link>
-                    <a
-                      className="px-2 py-2 inline-block text-red-600 bg-white shadow-xs border border-gray-200 rounded-md hover:bg-gray-100 cursor-pointer"
-                      onClick={() => deleteHandler(product?._id)}
-                    >
-                      <i className="fa fa-trash" aria-hidden="true"></i>
-                    </a>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs font-semibold uppercase bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 border-b-2 border-gray-300">
+              <tr>
+                <th scope="col" className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <i className="fa fa-tag text-gray-500"></i>
+                    Nom du Produit
                   </div>
-                </td>
+                </th>
+                <th scope="col" className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <i className="fa fa-boxes text-gray-500"></i>
+                    Stock
+                  </div>
+                </th>
+                <th scope="col" className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <i className="fa fa-chart-line text-gray-500"></i>
+                    Vendus
+                  </div>
+                </th>
+                <th scope="col" className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <i className="fa fa-folder text-gray-500"></i>
+                    Catégorie
+                  </div>
+                </th>
+                <th scope="col" className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <i className="fa fa-dollar-sign text-gray-500"></i>
+                    Prix
+                  </div>
+                </th>
+                <th scope="col" className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <i className="fa fa-toggle-on text-gray-500"></i>
+                    Statut
+                  </div>
+                </th>
+                <th scope="col" className="px-6 py-4 text-center">
+                  <div className="flex items-center justify-center gap-2">
+                    <i className="fa fa-cog text-gray-500"></i>
+                    Actions
+                  </div>
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-200 bg-white">
+              {products?.map((product) => (
+                <tr
+                  className="bg-white hover:bg-blue-50 transition-colors duration-150"
+                  key={product._id}
+                >
+                  {/* Nom avec image */}
+                  <td className="px-6 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg overflow-hidden border-2 border-gray-200 flex-shrink-0">
+                        <Image
+                          src={
+                            product?.images[0] !== undefined
+                              ? product?.images[0]?.url
+                              : "/images/default_product.png"
+                          }
+                          alt={product?.name}
+                          title={product?.name}
+                          width={40}
+                          height={40}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <span className="font-medium text-gray-900 line-clamp-2">
+                        {product?.name}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Stock */}
+                  <td className="px-6 py-3">
+                    <div
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full font-semibold text-sm ${
+                        product?.stock <= 5
+                          ? "bg-red-100 text-red-700 border border-red-200"
+                          : "bg-green-100 text-green-700 border border-green-200"
+                      }`}
+                    >
+                      <i
+                        className={`fa ${product?.stock <= 5 ? "fa-exclamation-triangle" : "fa-check-circle"} text-xs`}
+                      ></i>
+                      {product?.stock}
+                    </div>
+                  </td>
+
+                  {/* Vendus */}
+                  <td className="px-6 py-3">
+                    <span className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                      <i className="fa fa-shopping-cart text-xs"></i>
+                      {product?.sold || 0}
+                    </span>
+                  </td>
+
+                  {/* Catégorie */}
+                  <td className="px-6 py-3">
+                    <span className="inline-flex items-center gap-2 px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-medium">
+                      <i className="fa fa-tag"></i>
+                      {product?.category?.categoryName || "Non catégorisé"}
+                    </span>
+                  </td>
+
+                  {/* Prix */}
+                  <td className="px-6 py-3">
+                    <span className="font-bold text-lg text-gray-900">
+                      {product?.price}{" "}
+                      <span className="text-sm text-gray-500">FDj</span>
+                    </span>
+                  </td>
+
+                  {/* Statut */}
+                  <td className="px-6 py-3">
+                    <span
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${
+                        product?.isActive
+                          ? "bg-green-100 text-green-800 border border-green-200"
+                          : "bg-red-100 text-red-800 border border-red-200"
+                      }`}
+                    >
+                      <i
+                        className={`fa ${product?.isActive ? "fa-check-circle" : "fa-times-circle"}`}
+                      ></i>
+                      {product?.isActive ? "Actif" : "Inactif"}
+                    </span>
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-6 py-3">
+                    <div className="flex gap-2 justify-center">
+                      {/* Voir */}
+                      <Link
+                        href={`/admin/products/${product?._id}/profile`}
+                        className="group relative p-2 inline-flex items-center justify-center text-blue-700 bg-blue-100 border border-blue-300 rounded-lg hover:bg-blue-200 transition-all duration-200 shadow-sm hover:shadow-md"
+                        title="Voir le produit"
+                      >
+                        <i className="fa fa-eye" aria-hidden="true"></i>
+                      </Link>
+
+                      {/* Images */}
+                      <Link
+                        href={`/admin/products/${product?._id}/upload_images`}
+                        onClick={() => setProductImages(product?.images)}
+                        className="group relative p-2 inline-flex items-center justify-center text-green-700 bg-green-100 border border-green-300 rounded-lg hover:bg-green-200 transition-all duration-200 shadow-sm hover:shadow-md"
+                        title="Gérer les images"
+                      >
+                        <i className="fa fa-image" aria-hidden="true"></i>
+                      </Link>
+
+                      {/* Modifier */}
+                      <Link
+                        href={`/admin/products/${product?._id}`}
+                        className="group relative p-2 inline-flex items-center justify-center text-yellow-700 bg-yellow-100 border border-yellow-300 rounded-lg hover:bg-yellow-200 transition-all duration-200 shadow-sm hover:shadow-md"
+                        title="Modifier le produit"
+                      >
+                        <i className="fa fa-pencil" aria-hidden="true"></i>
+                      </Link>
+
+                      {/* Supprimer */}
+                      <button
+                        onClick={() => deleteHandler(product?._id)}
+                        className="group relative p-2 inline-flex items-center justify-center text-red-700 bg-red-100 border border-red-300 rounded-lg hover:bg-red-200 transition-all duration-200 shadow-sm hover:shadow-md"
+                        title="Supprimer le produit"
+                      >
+                        <i className="fa fa-trash" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

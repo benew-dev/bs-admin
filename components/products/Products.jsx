@@ -43,41 +43,62 @@ const Products = memo(({ data }) => {
   };
 
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-      <div className="flex justify-between">
-        <h1 className="text-3xl my-5 ml-4 font-bold">List of Products</h1>
-        <div className="flex justify-center items-baseline mr-4">
-          <button
-            onClick={() => setOpen((prev) => !prev)}
-            className="px-2 inline-block text-blue-500 bg-white shadow-xs border border-blue-600 rounded-md hover:bg-gray-100 cursor-pointer mr-4"
-          >
-            <i className="fa fa-sliders" aria-hidden="true"></i>
-          </button>
-          <Search setLoading={setLoading} />
+    <div className="relative overflow-x-auto">
+      {/* Header amélioré avec gradient */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-lg shadow-lg p-6 mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Gestion des Produits
+            </h1>
+            <p className="text-blue-100 text-sm">
+              Gérez et organisez tous vos produits en vente
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setOpen((prev) => !prev)}
+              className="px-4 py-2.5 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
+              title="Filtrer les produits"
+            >
+              <i className="fa fa-sliders" aria-hidden="true"></i>
+              <span className="hidden sm:inline">Filtres</span>
+            </button>
+            <Search setLoading={setLoading} />
+          </div>
         </div>
       </div>
-      <hr className="my-2 mx-9" />
 
-      <ProductsFilter
-        open={open}
-        setLoading={setLoading}
-        categories={data?.categories}
-      />
-      <hr className="my-2 mx-9" />
-
-      {loading ? (
-        <Loading />
-      ) : (
-        <ProductsTable
-          products={data?.products}
-          itemCount={data?.filteredProductsCount}
-          deleteHandler={deleteHandler}
+      {/* Filters Section */}
+      <div className={`${!open && "hidden"} mb-6`}>
+        <ProductsFilter
+          open={open}
+          setLoading={setLoading}
+          categories={data?.categories}
         />
-      )}
-
-      <div className="mb-6">
-        <CustomPagination totalPages={data?.totalPages} />
       </div>
+
+      {/* Table Section avec design amélioré */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
+        {loading ? (
+          <div className="p-8">
+            <Loading />
+          </div>
+        ) : (
+          <ProductsTable
+            products={data?.products}
+            itemCount={data?.filteredProductsCount}
+            deleteHandler={deleteHandler}
+          />
+        )}
+      </div>
+
+      {/* Pagination avec design amélioré */}
+      {data?.totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <CustomPagination totalPages={data?.totalPages} />
+        </div>
+      )}
     </div>
   );
 });
