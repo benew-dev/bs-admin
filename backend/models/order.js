@@ -109,7 +109,7 @@ const orderSchema = new mongoose.Schema(
     paymentStatus: {
       type: String,
       enum: {
-        values: ["unpaid", "processing", "paid", "refunded", "failed"],
+        values: ["unpaid", "paid", "refunded", "cancelled"],
         message: "Statut de paiement non valide: {VALUE}",
       },
       default: "unpaid",

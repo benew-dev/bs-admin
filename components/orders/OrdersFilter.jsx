@@ -101,24 +101,6 @@ const OrdersFilter = ({ open, setLoading }) => {
               </span>
             </label>
 
-            {/* Processing */}
-            <label className="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-200 group">
-              <input
-                name="paymentStatus"
-                type="checkbox"
-                value="processing"
-                className="h-4 w-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500 focus:ring-2"
-                defaultChecked={paymentFilter === "processing"}
-                onClick={(e) => handleClick(e.target)}
-              />
-              <span className="ml-3 flex items-center gap-2">
-                <i className="fa fa-clock text-yellow-600 text-sm"></i>
-                <span className="text-sm font-medium text-gray-700 group-hover:text-yellow-700">
-                  En traitement
-                </span>
-              </span>
-            </label>
-
             {/* Refunded */}
             <label className="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-all duration-200 group">
               <input
@@ -142,7 +124,7 @@ const OrdersFilter = ({ open, setLoading }) => {
               <input
                 name="paymentStatus"
                 type="checkbox"
-                value="failed"
+                value="cancelled"
                 className="h-4 w-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500 focus:ring-2"
                 defaultChecked={paymentFilter === "failed"}
                 onClick={(e) => handleClick(e.target)}
