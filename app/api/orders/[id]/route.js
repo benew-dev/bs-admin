@@ -50,7 +50,7 @@ export async function PUT(req, { params }) {
   }
 
   // Gestion de la mise à jour du statut de paiement
-  if (req.body.paymentStatus) {
+  if (body.paymentStatus) {
     const currentStatus = order.paymentStatus;
     const newStatus = body.paymentStatus;
 
