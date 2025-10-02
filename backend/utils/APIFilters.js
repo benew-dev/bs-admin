@@ -19,16 +19,8 @@ class APIFilters {
   }
 
   filter() {
-    let queryCopy = {};
     console.log("queryStr in APIFilters", this.queryStr);
-
-    if (this.queryStr.get("paymentStatus")) {
-      queryCopy = {
-        category: this.queryStr.get("paymentStatus"),
-        ...paymentStatus,
-      };
-    }
-
+    const queryCopy = { ...this.queryStr };
     console.log("queryCopy in APIFilters", this.queryCopy);
 
     const removeFields = ["keyword", "page"];

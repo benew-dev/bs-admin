@@ -31,7 +31,10 @@ export async function GET(req) {
     if (orders) filteredOrdersCount = 1;
   } else {
     console.log("searchParams: ", searchParams);
-    const apiFilters = new APIFilters(Order.find(), searchParams).filter();
+    const apiFilters = new APIFilters(
+      Order.find(),
+      searchParams?.get("paymentStatus"),
+    ).filter();
 
     orders = await apiFilters.query.sort({ createdAt: -1 });
     console.log("Orders: ", orders);
