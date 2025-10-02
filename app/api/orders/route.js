@@ -1,17 +1,14 @@
-/* eslint-disable no-unused-vars */
-import dbConnect from '@/backend/config/dbConnect';
-import DeliveryPrice from '@/backend/models/deliveryPrice';
-import Address from '@/backend/models/address';
-import Order from '@/backend/models/order';
-import { getMonthlyOrdersAnalytics } from '@/backend/pipelines/orderPipelines';
+import dbConnect from "@/backend/config/dbConnect";
+import Order from "@/backend/models/order";
+import { getMonthlyOrdersAnalytics } from "@/backend/pipelines/orderPipelines";
 import {
   descListCategorySoldSinceBeginningPipeline,
   descListProductSoldSinceBeginningPipeline,
   descListProductSoldThisMonthPipeline,
-} from '@/backend/pipelines/productPipelines';
-import { userThatBoughtMostSinceBeginningPipeline } from '@/backend/pipelines/userPipelines';
-import APIFilters from '@/backend/utils/APIFilters';
-import { NextResponse } from 'next/server';
+} from "@/backend/pipelines/productPipelines";
+import { userThatBoughtMostSinceBeginningPipeline } from "@/backend/pipelines/userPipelines";
+import APIFilters from "@/backend/utils/APIFilters";
+import { NextResponse } from "next/server";
 
 export async function GET(req) {
   // Connexion DB
@@ -27,26 +24,19 @@ export async function GET(req) {
 
   const searchParams = req.nextUrl.searchParams;
 
-  if (searchParams?.get('keyword')) {
-    const orderNumber = searchParams?.get('keyword');
-    orders = await Order.findOne({ orderNumber: orderNumber }).populate(
-      'shippingInfo user',
-    );
+  if (searchParams?.get("keyword")) {
+    const orderNumber = searchParams?.get("keyword");
+    orders = await Order.findOne({ orderNumber: orderNumber });
 
     if (orders) filteredOrdersCount = 1;
   } else {
     const apiFilters = new APIFilters(Order.find(), searchParams).filter();
 
-    orders = await apiFilters.query
-      .populate('shippingInfo user')
-      .sort({ createdAt: -1 });
+    orders = await apiFilters.query.sort({ createdAt: -1 });
     filteredOrdersCount = orders.length;
 
     apiFilters.pagination(resPerPage);
-    orders = await apiFilters.query
-      .clone()
-      .populate('shippingInfo user')
-      .sort({ createdAt: -1 });
+    orders = await apiFilters.query.clone().sort({ createdAt: -1 });
 
     result = ordersCount / resPerPage;
     totalPages = Number.isInteger(result) ? result : Math.ceil(result);
@@ -64,8 +54,8 @@ export async function GET(req) {
 
   // Stats supplémentaires (depuis le début, pas seulement ce mois)
   const deliveredOrdersCount = await Order.countDocuments({
-    paymentStatus: 'paid',
-    orderStatus: 'Delivered',
+    paymentStatus: "paid",
+    orderStatus: "Delivered",
   });
 
   // Descendant List of Product Sold Since The Beginning
@@ -82,14 +72,11 @@ export async function GET(req) {
   const userThatBoughtMostSinceBeginning =
     await userThatBoughtMostSinceBeginningPipeline();
 
-  const deliveryPrice = await DeliveryPrice.find();
-
   const overviewPattern = /overview/;
 
   if (overviewPattern.test(req?.url)) {
     return NextResponse.json(
       {
-        deliveryPrice,
         userThatBoughtMostSinceBeginning,
         descListProductSoldThisMonth,
         descListCategorySoldSinceBeginning,
@@ -112,7 +99,6 @@ export async function GET(req) {
   } else {
     return NextResponse.json(
       {
-        deliveryPrice,
         // Utilisation des nouvelles stats
         totalOrdersDeliveredThisMonth: [
           { totalOrdersDelivered: monthlyStats.totalOrdersDelivered },

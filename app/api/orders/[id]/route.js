@@ -1,21 +1,19 @@
-/* eslint-disable no-unused-vars */
-import Order from '@/backend/models/order';
-import Address from '@/backend/models/address';
-import User from '@/backend/models/user';
-import Category from '@/backend/models/category';
-import { NextResponse } from 'next/server';
-import dbConnect from '@/backend/config/dbConnect';
-import Product from '@/backend/models/product';
+import Order from "@/backend/models/order";
+import User from "@/backend/models/user";
+import Category from "@/backend/models/category";
+import { NextResponse } from "next/server";
+import dbConnect from "@/backend/config/dbConnect";
+import Product from "@/backend/models/product";
 
 export async function GET(req, { params }) {
   const { id } = params;
 
   await dbConnect();
 
-  const order = await Order.findById(id).populate('shippingInfo user');
+  const order = await Order.findById(id);
 
   if (!order) {
-    return NextResponse.json({ message: 'No Order found' }, { status: 404 });
+    return NextResponse.json({ message: "No Order found" }, { status: 404 });
   }
 
   return NextResponse.json({ order }, { status: 200 });
@@ -29,7 +27,7 @@ export async function PUT(req, { params }) {
   let order = await Order.findById(id);
 
   if (!order) {
-    return NextResponse.json({ message: 'No Order found' }, { status: 404 });
+    return NextResponse.json({ message: "No Order found" }, { status: 404 });
   }
 
   if (req.body.orderStatus) {
@@ -44,8 +42,8 @@ export async function PUT(req, { params }) {
 
     // Définir les transitions autorisées
     const allowedTransitions = {
-      unpaid: ['paid', 'cancelled'],
-      paid: ['refunded'],
+      unpaid: ["paid", "cancelled"],
+      paid: ["refunded"],
       refunded: [], // Aucune transition autorisée
       cancelled: [], // Aucune transition autorisée
     };
@@ -64,12 +62,12 @@ export async function PUT(req, { params }) {
     // Gestion des mises à jour de stock et sold selon le changement de statut
     try {
       // Si on passe de 'unpaid' à 'paid' : ajouter aux ventes
-      if (currentStatus === 'unpaid' && newStatus === 'paid') {
+      if (currentStatus === "unpaid" && newStatus === "paid") {
         // Récupérer les produits avec leurs catégories
         const productIds = order.orderItems.map((item) => item.product);
         const products = await Product.find({
           _id: { $in: productIds },
-        }).populate('category');
+        }).populate("category");
 
         // Créer un map pour associer productId -> categoryId et quantity
         const categoryUpdates = new Map();
@@ -130,12 +128,12 @@ export async function PUT(req, { params }) {
       }
 
       // Si on passe de 'paid' à 'refunded' : annuler les ventes et restaurer le stock
-      else if (currentStatus === 'paid' && newStatus === 'refunded') {
+      else if (currentStatus === "paid" && newStatus === "refunded") {
         // Récupérer les produits avec leurs catégories
         const productIds = order.orderItems.map((item) => item.product);
         const products = await Product.find({
           _id: { $in: productIds },
-        }).populate('category');
+        }).populate("category");
 
         // Créer un map pour associer productId -> categoryId et quantity
         const categoryUpdates = new Map();
@@ -196,12 +194,12 @@ export async function PUT(req, { params }) {
         await Promise.all(promises);
       }
     } catch (error) {
-      console.error('Erreur lors de la mise à jour du stock/sold:', error);
+      console.error("Erreur lors de la mise à jour du stock/sold:", error);
       return NextResponse.json(
         {
           success: false,
           message:
-            'Erreur lors de la mise à jour du stock des produits et catégories',
+            "Erreur lors de la mise à jour du stock des produits et catégories",
           error: error.message,
         },
         { status: 500 },
