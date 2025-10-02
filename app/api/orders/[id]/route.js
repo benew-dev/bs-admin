@@ -30,7 +30,6 @@ export async function GET(req, { params }) {
 }
 
 export async function PUT(req, { params }) {
-  console.log("We are in put request for updating order");
   // Vérifier l'authentification
   await isAuthenticatedUser(req, NextResponse);
 
@@ -38,6 +37,7 @@ export async function PUT(req, { params }) {
   await authorizeRoles(NextResponse, "admin");
 
   const { id } = params;
+  const body = await req.json();
 
   await dbConnect();
 
@@ -50,7 +50,7 @@ export async function PUT(req, { params }) {
   // Gestion de la mise à jour du statut de paiement
   if (req.body.paymentStatus) {
     const currentStatus = order.paymentStatus;
-    const newStatus = req.body.paymentStatus;
+    const newStatus = body.paymentStatus;
 
     // Définir les transitions autorisées
     const allowedTransitions = {
@@ -212,16 +212,16 @@ export async function PUT(req, { params }) {
       // Si on passe à 'failed' : marquer comme annulée
       else if (newStatus === "cancelled") {
         order.cancelledAt = Date.now();
-        if (req.body.cancelReason) {
-          order.cancelReason = req.body.cancelReason;
+        if (body.cancelReason) {
+          order.cancelReason = body.cancelReason;
         }
       }
 
       // Si on passe à 'refunded' : marquer comme annulée avec raison
       else if (newStatus === "refunded") {
         order.cancelledAt = Date.now();
-        if (req.body.cancelReason) {
-          order.cancelReason = req.body.cancelReason;
+        if (body.cancelReason) {
+          order.cancelReason = body.cancelReason;
         }
       }
     } catch (error) {
@@ -241,8 +241,8 @@ export async function PUT(req, { params }) {
     order.paymentStatus = newStatus;
 
     // Ajouter cancelReason si fourni
-    if (req.body.cancelReason) {
-      order.cancelReason = req.body.cancelReason;
+    if (body.cancelReason) {
+      order.cancelReason = body.cancelReason;
     }
 
     // Sauvegarder les modifications
