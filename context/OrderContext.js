@@ -6,7 +6,6 @@ import React, { createContext, useState } from "react";
 
 const OrderContext = createContext();
 
-// eslint-disable-next-line react/prop-types
 export const OrderProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -21,6 +20,8 @@ export const OrderProvider = ({ children }) => {
         `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${id}`,
         orderData,
       );
+
+      console.log("data in update order", data);
 
       if (data?.success) {
         setUpdated(true);

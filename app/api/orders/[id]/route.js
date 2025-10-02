@@ -30,6 +30,7 @@ export async function GET(req, { params }) {
 }
 
 export async function PUT(req, { params }) {
+  console.log("We are in put request for updating order");
   // Vérifier l'authentification
   await isAuthenticatedUser(req, NextResponse);
 
