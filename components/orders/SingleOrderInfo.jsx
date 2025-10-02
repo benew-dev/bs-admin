@@ -35,14 +35,14 @@ const UpdateOrder = memo(({ order }) => {
   // Afficher le champ de raison d'annulation si nécessaire
   useEffect(() => {
     setShowCancelReason(
-      paymentStatus === "refunded" || paymentStatus === "failed",
+      paymentStatus === "refunded" || paymentStatus === "cancelled",
     );
   }, [paymentStatus]);
 
   const submitHandler = () => {
     // Validation
     if (
-      (paymentStatus === "refunded" || paymentStatus === "failed") &&
+      (paymentStatus === "refunded" || paymentStatus === "cancelled") &&
       !cancelReason.trim()
     ) {
       toast.error("Please provide a reason for refund/failure");
@@ -73,11 +73,9 @@ const UpdateOrder = memo(({ order }) => {
                 ? "bg-green-100 text-green-700"
                 : order?.paymentStatus === "unpaid"
                   ? "bg-red-100 text-red-700"
-                  : order?.paymentStatus === "processing"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : order?.paymentStatus === "refunded"
-                      ? "bg-orange-100 text-orange-700"
-                      : "bg-gray-100 text-gray-700"
+                  : order?.paymentStatus === "refunded"
+                    ? "bg-orange-100 text-orange-700"
+                    : "bg-gray-100 text-gray-700"
             }`}
           >
             {order?.paymentStatus?.toUpperCase()}
@@ -111,10 +109,9 @@ const UpdateOrder = memo(({ order }) => {
                 required
               >
                 <option value="unpaid">Unpaid</option>
-                <option value="processing">Processing</option>
                 <option value="paid">Paid</option>
                 <option value="refunded">Refunded</option>
-                <option value="failed">Failed</option>
+                <option value="cancelled">Cancelled</option>
               </select>
               <i className="absolute inset-y-0 right-0 p-3 text-gray-400 pointer-events-none">
                 <svg
@@ -133,13 +130,14 @@ const UpdateOrder = memo(({ order }) => {
           {showCancelReason && (
             <div className="animate-fadeIn">
               <label className="block mb-2 text-sm font-semibold text-gray-700">
-                Reason for {paymentStatus === "refunded" ? "Refund" : "Failure"}{" "}
+                Reason for{" "}
+                {paymentStatus === "refunded" ? "Refund" : "Cancelled"}{" "}
                 <span className="text-red-500">*</span>
               </label>
               <textarea
                 className="block w-full border-2 border-gray-300 bg-white rounded-lg py-3 px-4 hover:border-orange-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200 resize-none"
                 rows="3"
-                placeholder={`Explain why this order is being ${paymentStatus === "refunded" ? "refunded" : "marked as failed"}...`}
+                placeholder={`Explain why this order is being ${paymentStatus === "refunded" ? "refunded" : "marked as cancelled"}...`}
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
                 maxLength={200}
@@ -163,16 +161,13 @@ const UpdateOrder = memo(({ order }) => {
                     • <strong>Unpaid:</strong> Order awaiting payment
                   </li>
                   <li>
-                    • <strong>Processing:</strong> Payment is being verified
-                  </li>
-                  <li>
                     • <strong>Paid:</strong> Payment confirmed successfully
                   </li>
                   <li>
                     • <strong>Refunded:</strong> Payment returned to customer
                   </li>
                   <li>
-                    • <strong>Failed:</strong> Payment transaction failed
+                    • <strong>Cancelled:</strong> Payment transaction cancelled
                   </li>
                 </ul>
               </div>
