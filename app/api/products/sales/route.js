@@ -11,7 +11,7 @@ import {
 } from "@/backend/pipelines/productPipelines";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req) {
   // Vérifier l'authentification
   await isAuthenticatedUser(req, NextResponse);
 

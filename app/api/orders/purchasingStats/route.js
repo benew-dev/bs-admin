@@ -7,7 +7,7 @@ import Order from "@/backend/models/order";
 import { getMonthlyOrdersAnalytics } from "@/backend/pipelines/orderPipelines";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req) {
   // Vérifier l'authentification
   await isAuthenticatedUser(req, NextResponse);
 
