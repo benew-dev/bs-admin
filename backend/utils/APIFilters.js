@@ -20,7 +20,6 @@ class APIFilters {
 
   filter() {
     let queryCopy = {};
-    console.log("queryStr in APIFilters", this.queryStr);
 
     if (this.queryStr?.get("paymentStatus")) {
       queryCopy = {
@@ -29,12 +28,8 @@ class APIFilters {
       };
     }
 
-    console.log("queryCopy in APIFilters", this.queryCopy);
-
     const removeFields = ["keyword", "page"];
     removeFields.forEach((el) => delete queryCopy[el]);
-
-    console.log("queryCopy in APIFilters", this.queryCopy);
 
     let output = {};
     let prop = "";
@@ -55,8 +50,6 @@ class APIFilters {
       }
     }
     // { price: { $gte: 100, $lte: 1000 } }
-
-    console.log("Output in APIFilters", output);
 
     this.query = this.query.find(output);
     return this;
