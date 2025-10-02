@@ -39,6 +39,8 @@ export async function PUT(req, { params }) {
   const { id } = params;
   const body = await req.json();
 
+  console.log("body: ", body);
+
   await dbConnect();
 
   let order = await Order.findById(id);
