@@ -26,7 +26,7 @@ class APIFilters {
     const removeFields = ["keyword", "page"];
     removeFields.forEach((el) => delete queryCopy[el]);
 
-    console.log("queryCopy in APIFilters", this.queryStr);
+    console.log("queryCopy in APIFilters", this.queryCopy);
 
     let output = {};
     let prop = "";
