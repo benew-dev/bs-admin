@@ -239,6 +239,8 @@ export async function PUT(req, { params }) {
       );
     }
 
+    console.log("newStatus: ", newStatus);
+
     // Effectuer la mise à jour du paymentStatus
     order.paymentStatus = newStatus;
 
