@@ -3,6 +3,7 @@ import Category from "@/backend/models/category";
 import { NextResponse } from "next/server";
 import dbConnect from "@/backend/config/dbConnect";
 import Product from "@/backend/models/product";
+import User from "@/backend/models/user";
 import {
   authorizeRoles,
   isAuthenticatedUser,
@@ -19,7 +20,7 @@ export async function GET(req, { params }) {
 
   await dbConnect();
 
-  const order = await Order.findById(id);
+  const order = await Order.findById(id).populate("name phone email");
 
   if (!order) {
     return NextResponse.json({ message: "No Order found" }, { status: 404 });
@@ -52,11 +53,10 @@ export async function PUT(req, { params }) {
 
     // Définir les transitions autorisées
     const allowedTransitions = {
-      unpaid: ["processing", "paid", "failed"],
-      processing: ["paid", "failed"],
+      unpaid: ["paid", "cancelled"],
       paid: ["refunded"],
       refunded: [], // Aucune transition autorisée
-      failed: [], // Aucune transition autorisée
+      cancelled: [], // Aucune transition autorisée
     };
 
     // Vérifier si la transition est autorisée
@@ -73,10 +73,7 @@ export async function PUT(req, { params }) {
     // Gestion des mises à jour de stock et sold selon le changement de statut
     try {
       // Si on passe de 'unpaid' ou 'processing' à 'paid' : ajouter aux ventes
-      if (
-        (currentStatus === "unpaid" || currentStatus === "processing") &&
-        newStatus === "paid"
-      ) {
+      if (currentStatus === "unpaid" && newStatus === "paid") {
         // Récupérer les produits avec leurs catégories
         const productIds = order.orderItems.map((item) => item.product);
         const products = await Product.find({
@@ -212,7 +209,7 @@ export async function PUT(req, { params }) {
       }
 
       // Si on passe à 'failed' : marquer comme annulée
-      else if (newStatus === "failed") {
+      else if (newStatus === "cancelled") {
         order.cancelledAt = Date.now();
         if (req.body.cancelReason) {
           order.cancelReason = req.body.cancelReason;
