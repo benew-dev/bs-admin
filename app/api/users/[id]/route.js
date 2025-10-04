@@ -6,14 +6,12 @@ import { NextResponse } from "next/server";
 import Cart from "@/backend/models/cart";
 
 export async function GET(req, { params }) {
-  const { id } = await params;
+  const { id } = await params; // ✅ Ajout de await
 
   try {
     await dbConnect();
 
-    // Utiliser .lean() pour obtenir un objet JavaScript pur
-    // Cela évite tous les middlewares et transformations Mongoose
-    let user = await User.findById(id).lean();
+    let user = await User.findById(id);
 
     if (!user) {
       return NextResponse.json(
@@ -23,32 +21,22 @@ export async function GET(req, { params }) {
     }
 
     const orders = await Order.find({
-      user: new mongoose.Types.ObjectId(user._id),
+      user: new mongoose.Types.ObjectId(user?._id),
     })
       .select(
         "orderNumber totalAmount paymentInfo.typePayment paymentStatus createdAt paidAt",
       )
       .sort({ createdAt: -1 })
-      .limit(50)
-      .lean(); // Ajout de .lean() aussi pour les orders
+      .limit(50);
 
-    // Pas besoin de toObject() avec .lean()
-    // Supprimer manuellement les champs sensibles
-    delete user.password;
-    delete user.loginAttempts;
-    delete user.lockUntil;
-    delete user.resetPasswordToken;
-    delete user.resetPasswordExpire;
-    delete user.__v;
-
-    // Ajouter la vérification des stats si nécessaire
+    const userObj = user.toObject();
     if (user.purchaseStats && user.purchaseStats.totalOrders > 0) {
-      user.purchaseStatsCalculated = true;
+      userObj.purchaseStatsCalculated = true;
     }
 
     return NextResponse.json({
       success: true,
-      user: user,
+      user: userObj,
       orders,
       orderCount: orders.length,
     });
@@ -63,73 +51,51 @@ export async function GET(req, { params }) {
 }
 
 export async function PUT(req, { params }) {
-  const { id } = await params;
+  const { id } = await params; // ✅ Ajout de await
 
-  try {
-    await dbConnect();
+  await dbConnect();
+  let user = await User.findById(id);
 
-    let user = await User.findById(id);
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "No user found" },
-        { status: 404 },
-      );
-    }
-
-    const body = await req.json();
-    user = await User.findByIdAndUpdate(id, body.userData, {
-      new: true,
-      runValidators: true,
-    }).lean();
-
-    return NextResponse.json({ success: true, user }, { status: 200 });
-  } catch (error) {
-    console.error("Error in updateUser:", error);
+  if (!user) {
     return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 },
+      { success: false, error: "No user found" },
+      { status: 404 },
     );
   }
+
+  user = await User.findByIdAndUpdate(id, req.body.userData);
+
+  return NextResponse.json({ success: true, user }, { status: 200 });
 }
 
 export async function DELETE(req, { params }) {
-  const { id } = await params;
+  const { id } = await params; // ✅ Ajout de await
 
-  try {
-    await dbConnect();
+  await dbConnect();
+  let user = await User.findById(id);
 
-    let user = await User.findById(id);
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "No user found" },
-        { status: 404 },
-      );
-    }
-
-    const cartContainingThisProduct = await Cart.countDocuments({
-      user: user._id,
-    });
-
-    if (cartContainingThisProduct > 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Cannot delete user. It has one or more carts.",
-        },
-        { status: 400 },
-      );
-    }
-
-    await user.deleteOne();
-
-    return NextResponse.json({ success: true }, { status: 200 });
-  } catch (error) {
-    console.error("Error in deleteUser:", error);
+  if (!user) {
     return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 500 },
+      { success: false, error: "No user found" },
+      { status: 404 },
     );
   }
+
+  const cartContainingThisProduct = await Cart.countDocuments({
+    user: user?._id,
+  });
+
+  if (cartContainingThisProduct > 0) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Cannot delete user. It has one or more carts.",
+      },
+      { status: 400 },
+    );
+  }
+
+  await user.deleteOne();
+
+  return NextResponse.json({ success: true }, { status: 200 });
 }
