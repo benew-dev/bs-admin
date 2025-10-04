@@ -1,5 +1,6 @@
 "use client";
 
+import SettingsContext from "@/context/SettingsContext";
 import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
