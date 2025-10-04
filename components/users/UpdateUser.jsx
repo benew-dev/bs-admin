@@ -1,3 +1,5 @@
+"use client";
+
 import { memo, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
