@@ -6,7 +6,8 @@ import { NextResponse } from "next/server";
 import Cart from "@/backend/models/cart";
 
 export async function GET(req, { params }) {
-  const { id } = params;
+  const { id } = await params; // ✅ Ajout de await
+
   try {
     await dbConnect();
 
@@ -19,8 +20,6 @@ export async function GET(req, { params }) {
       );
     }
 
-    // Utiliser la projection pour limiter les champs retournés
-    // ADAPTÉ AU MODÈLE ORDER : Suppression de shippingInfo, orderStatus
     const orders = await Order.find({
       user: new mongoose.Types.ObjectId(user?._id),
     })
@@ -28,9 +27,8 @@ export async function GET(req, { params }) {
         "orderNumber totalAmount paymentInfo.typePayment paymentStatus createdAt paidAt",
       )
       .sort({ createdAt: -1 })
-      .limit(50); // Limiter aux 50 dernières commandes
+      .limit(50);
 
-    // Si l'utilisateur a des stats pré-calculées, les inclure
     const userObj = user.toObject();
     if (user.purchaseStats && user.purchaseStats.totalOrders > 0) {
       userObj.purchaseStatsCalculated = true;
@@ -53,7 +51,8 @@ export async function GET(req, { params }) {
 }
 
 export async function PUT(req, { params }) {
-  const { id } = params;
+  const { id } = await params; // ✅ Ajout de await
+
   await dbConnect();
   let user = await User.findById(id);
 
@@ -70,7 +69,8 @@ export async function PUT(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
-  const { id } = params;
+  const { id } = await params; // ✅ Ajout de await
+
   await dbConnect();
   let user = await User.findById(id);
 
