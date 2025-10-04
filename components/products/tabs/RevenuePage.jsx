@@ -1,16 +1,12 @@
 /* eslint-disable react/prop-types */
-import { arrayHasData } from '@/helpers/helpers';
-import React from 'react';
+import { arrayHasData } from "@/helpers/helpers";
+import React from "react";
 
 const RevenuePage = ({ revenues }) => {
   const totalPrice = arrayHasData(revenues)
     ? 0
     : revenues
-        ?.reduce(
-          (acc, currentValue) =>
-            acc + currentValue?.price * currentValue?.quantity,
-          0,
-        )
+        ?.reduce((acc, currentValue) => acc + currentValue?.price, 0)
         .toFixed(2);
 
   return (
@@ -46,9 +42,7 @@ const RevenuePage = ({ revenues }) => {
             {revenues?.map((revenue, index) => (
               <tr key={index} className="bg-white">
                 <td className="px-6 py-2">{revenue?.quantity}</td>
-                <td className="px-6 py-2">
-                  $ {revenue?.price * revenue?.quantity}
-                </td>
+                <td className="px-6 py-2">$ {revenue?.price}</td>
                 <td className="px-6 py-2">{revenue?.date?.substring(0, 10)}</td>
               </tr>
             ))}
