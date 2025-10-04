@@ -94,6 +94,7 @@ const ListProductSoldThisMonth = ({ productSoldThisMonth }) => {
                 <td className="px-6 py-3">
                   <div className="flex items-center gap-3">
                     {getRankIcon(index)}
+                    {console.log("Product", product)}
                     <div className="w-10 h-10 rounded-lg overflow-hidden border-2 border-gray-200 flex-shrink-0">
                       <Image
                         loader={customLoader}
