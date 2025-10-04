@@ -1,16 +1,16 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
-import InfoPage from './InfoPage';
-import OrdersPage from './OrdersPage';
-import RevenuePage from './RevenuePage';
+import React from "react";
+import InfoPage from "./InfoPage";
+import OrdersPage from "./OrdersPage";
+import RevenuePage from "./RevenuePage";
 
 const ParentTab = ({ tabs, product, orders, revenues }) => {
   switch (tabs) {
-    case 'infos':
+    case "infos":
       return <InfoPage product={product} />;
-    case 'orders':
+    case "orders":
       return <OrdersPage orders={orders} />;
-    case 'revenue':
+    case "revenue":
       return <RevenuePage revenues={revenues?.details} />;
 
     default:

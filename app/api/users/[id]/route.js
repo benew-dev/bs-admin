@@ -11,8 +11,7 @@ export async function GET(req, { params }) {
   try {
     await dbConnect();
 
-    // Utiliser .lean() pour obtenir un objet JavaScript pur
-    // Cela évite tous les middlewares et transformations Mongoose
+    // ✅ Utiliser .lean() pour éviter les middlewares Mongoose qui causent l'erreur
     let user = await User.findById(id).lean();
 
     if (!user) {
@@ -22,6 +21,7 @@ export async function GET(req, { params }) {
       );
     }
 
+    // Récupérer les commandes avec .lean() aussi
     const orders = await Order.find({
       user: new mongoose.Types.ObjectId(user._id),
     })
@@ -30,10 +30,9 @@ export async function GET(req, { params }) {
       )
       .sort({ createdAt: -1 })
       .limit(50)
-      .lean(); // Ajout de .lean() aussi pour les orders
+      .lean(); // ✅ Ajout de .lean()
 
-    // Pas besoin de toObject() avec .lean()
-    // Supprimer manuellement les champs sensibles
+    // ✅ Supprimer manuellement les champs sensibles (plus besoin de toObject())
     delete user.password;
     delete user.loginAttempts;
     delete user.lockUntil;
@@ -41,7 +40,7 @@ export async function GET(req, { params }) {
     delete user.resetPasswordExpire;
     delete user.__v;
 
-    // Ajouter la vérification des stats si nécessaire
+    // Ajouter les stats si disponibles
     if (user.purchaseStats && user.purchaseStats.totalOrders > 0) {
       user.purchaseStatsCalculated = true;
     }
@@ -78,10 +77,20 @@ export async function PUT(req, { params }) {
     }
 
     const body = await req.json();
+
+    // ✅ Utiliser .lean() pour retourner un objet JavaScript pur
     user = await User.findByIdAndUpdate(id, body.userData, {
       new: true,
       runValidators: true,
     }).lean();
+
+    // Supprimer les champs sensibles
+    delete user.password;
+    delete user.loginAttempts;
+    delete user.lockUntil;
+    delete user.resetPasswordToken;
+    delete user.resetPasswordExpire;
+    delete user.__v;
 
     return NextResponse.json({ success: true, user }, { status: 200 });
   } catch (error) {
@@ -108,11 +117,12 @@ export async function DELETE(req, { params }) {
       );
     }
 
-    const cartContainingThisProduct = await Cart.countDocuments({
+    // Vérifier s'il y a des paniers liés à cet utilisateur
+    const cartCount = await Cart.countDocuments({
       user: user._id,
     });
 
-    if (cartContainingThisProduct > 0) {
+    if (cartCount > 0) {
       return NextResponse.json(
         {
           success: false,

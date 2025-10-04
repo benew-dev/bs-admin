@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
 
 const OrdersPage = ({ orders }) => {
   // Vérifier si orders est un array valide avec des données
@@ -12,36 +12,36 @@ const OrdersPage = ({ orders }) => {
   // Fonction pour obtenir la couleur du statut de paiement
   const getPaymentStatusColor = (status) => {
     switch (status) {
-      case 'paid':
-        return 'text-green-600 bg-green-50 border-green-200';
-      case 'unpaid':
-        return 'text-red-600 bg-red-50 border-red-200';
-      case 'refunded':
-        return 'text-orange-600 bg-orange-50 border-orange-200';
-      case 'cancelled':
-        return 'text-gray-600 bg-gray-50 border-gray-200';
+      case "paid":
+        return "text-green-600 bg-green-50 border-green-200";
+      case "unpaid":
+        return "text-red-600 bg-red-50 border-red-200";
+      case "refunded":
+        return "text-orange-600 bg-orange-50 border-orange-200";
+      case "cancelled":
+        return "text-gray-600 bg-gray-50 border-gray-200";
       default:
-        return 'text-gray-600 bg-gray-50 border-gray-200';
+        return "text-gray-600 bg-gray-50 border-gray-200";
     }
   };
 
   // Fonction pour obtenir la couleur du statut de commande
   const getOrderStatusColor = (status) => {
     switch (status) {
-      case 'Unpaid':
-        return 'text-red-500';
-      case 'Processing':
-        return 'text-black-500';
-      case 'Shipped':
-        return 'text-blue-500';
-      case 'Delivered':
-        return 'text-green-500';
-      case 'Cancelled':
-        return 'text-gray-500';
-      case 'Returned':
-        return 'text-orange-500';
+      case "Unpaid":
+        return "text-red-500";
+      case "Processing":
+        return "text-black-500";
+      case "Shipped":
+        return "text-blue-500";
+      case "Delivered":
+        return "text-green-500";
+      case "Cancelled":
+        return "text-gray-500";
+      case "Returned":
+        return "text-orange-500";
       default:
-        return 'text-gray-600';
+        return "text-gray-600";
     }
   };
 
@@ -111,29 +111,29 @@ const OrdersPage = ({ orders }) => {
                     {order?.orderNumber || order?._id}
                   </td>
                   <td className="px-3 py-2 font-semibold">
-                    ${order?.totalAmount?.toFixed(2) || '0.00'}
+                    ${order?.totalAmount?.toFixed(2) || "0.00"}
                   </td>
                   <td className="px-3 py-2">
                     <span
                       className={`px-2 py-1 rounded text-xs font-medium border capitalize ${getPaymentStatusColor(order?.paymentStatus)}`}
                     >
-                      {order?.paymentStatus || 'N/A'}
+                      {order?.paymentStatus || "N/A"}
                     </span>
                   </td>
                   <td className="px-3 py-2">
-                    {order?.paymentInfo?.typePayment?.toUpperCase() || 'N/A'}
+                    {order?.paymentInfo?.typePayment?.toUpperCase() || "N/A"}
                   </td>
                   <td className="px-3 py-2">
                     <span
                       className={`px-2 py-1 rounded text-xs font-medium ${
                         order?.shippingInfo === undefined
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-green-100 text-green-700'
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-green-100 text-green-700"
                       }`}
                     >
                       {order?.shippingInfo === undefined
-                        ? 'Pickup'
-                        : 'Delivery'}
+                        ? "Pickup"
+                        : "Delivery"}
                     </span>
                   </td>
                   {order?.shippingInfo !== undefined ? (

@@ -1,12 +1,12 @@
 /* eslint-disable react/prop-types */
-'use client';
+"use client";
 
-import React, { memo, useState } from 'react';
-import ParentTab from './tabs/ParentTab';
+import React, { memo, useState } from "react";
+import ParentTab from "./tabs/ParentTab";
 
 const ProductProfile = memo(({ data }) => {
-  const [tabs, setTabs] = useState('infos');
-  const [active, setActive] = useState('infos');
+  const [tabs, setTabs] = useState("infos");
+  const [active, setActive] = useState("infos");
 
   const handleClick = (tab) => {
     setTabs(tab);
@@ -15,14 +15,14 @@ const ProductProfile = memo(({ data }) => {
 
   // Fonction pour formater les dates
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -35,11 +35,11 @@ const ProductProfile = memo(({ data }) => {
           <span
             className={`px-3 py-1 rounded-full text-xs font-medium ${
               data?.product?.isActive
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
             }`}
           >
-            {data?.product?.isActive ? 'Active' : 'Inactive'}
+            {data?.product?.isActive ? "Active" : "Inactive"}
           </span>
         </div>
       </div>
@@ -48,20 +48,20 @@ const ProductProfile = memo(({ data }) => {
 
       <div className="flex justify-evenly">
         <p
-          className={`my-2 cursor-pointer ${active === 'infos' ? 'font-semibold text-blue-500' : 'text-gray-400'}`}
-          onClick={() => handleClick('infos')}
+          className={`my-2 cursor-pointer ${active === "infos" ? "font-semibold text-blue-500" : "text-gray-400"}`}
+          onClick={() => handleClick("infos")}
         >
           Infos
         </p>
         <p
-          className={`my-2 cursor-pointer ${active === 'orders' ? 'font-semibold text-blue-500' : 'text-gray-400'}`}
-          onClick={() => handleClick('orders')}
+          className={`my-2 cursor-pointer ${active === "orders" ? "font-semibold text-blue-500" : "text-gray-400"}`}
+          onClick={() => handleClick("orders")}
         >
           Orders
         </p>
         <p
-          className={`my-2 cursor-pointer ${active === 'revenue' ? 'font-semibold text-blue-500' : 'text-gray-400'}`}
-          onClick={() => handleClick('revenue')}
+          className={`my-2 cursor-pointer ${active === "revenue" ? "font-semibold text-blue-500" : "text-gray-400"}`}
+          onClick={() => handleClick("revenue")}
         >
           Revenues
         </p>
@@ -70,7 +70,7 @@ const ProductProfile = memo(({ data }) => {
       <hr className="my-2 mx-9" />
 
       {/* Affichage des informations supplémentaires dans l'onglet Infos */}
-      {tabs === 'infos' && (
+      {tabs === "infos" && (
         <div className="px-6 py-4 bg-gray-50">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="bg-white p-3 rounded-lg shadow-sm">
@@ -105,6 +105,6 @@ const ProductProfile = memo(({ data }) => {
   );
 });
 
-ProductProfile.displayName = 'ProductProfile';
+ProductProfile.displayName = "ProductProfile";
 
 export default ProductProfile;
