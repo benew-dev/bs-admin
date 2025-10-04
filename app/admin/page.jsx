@@ -1,14 +1,15 @@
 import React from "react";
-// import dynamic from "next/dynamic";
-// import Loading from "../loading";
+import dynamic from "next/dynamic";
+import Loading from "../loading";
 
-// const Overview = dynamic(() => import("@/components/overview/Overview"), {
-//   loading: () => <Loading />,
-// });
+const Overview = dynamic(() => import("@/components/overview/Overview"), {
+  loading: () => <Loading />,
+});
 
 import {
   getAllOrders,
   getCategoryData,
+  getDeliveryPrice,
   getPaymentTypeData,
 } from "@/backend/utils/server-only-methods";
 
@@ -18,19 +19,19 @@ export const metadata = {
 
 // eslint-disable-next-line react/prop-types
 const HomePage = async ({ searchParams }) => {
-  // const orders = await getAllOrders(await searchParams);
-  // const categoryData = await getCategoryData();
-  // const paymentTypeData = await getPaymentTypeData();
+  const orders = await getAllOrders(await searchParams);
+  const deliveryPriceData = await getDeliveryPrice();
+  const categoryData = await getCategoryData();
+  const paymentTypeData = await getPaymentTypeData();
 
-  // return (
-  //   <Overview
-  //     orders={orders}
-  //     categories={categoryData?.categories}
-  //     paymentTypes={paymentTypeData?.paymentTypes}
-  //   />
-  // );
-
-  return <p>Overview page not implemented for now</p>;
+  return (
+    <Overview
+      orders={orders}
+      deliveryPrices={deliveryPriceData?.deliveryPrice}
+      categories={categoryData?.categories}
+      paymentTypes={paymentTypeData?.paymentTypes}
+    />
+  );
 };
 
 export default HomePage;
