@@ -94,24 +94,23 @@ const ListProductSoldThisMonth = ({ productSoldThisMonth }) => {
                 <td className="px-6 py-3">
                   <div className="flex items-center gap-3">
                     {getRankIcon(index)}
-                    {console.log("Product", product)}
                     <div className="w-10 h-10 rounded-lg overflow-hidden border-2 border-gray-200 flex-shrink-0">
                       <Image
                         loader={customLoader}
                         src={
                           product?.productImage
-                            ? product.productImage
+                            ? product.productImage[0]
                             : "/images/default_product.png"
                         }
-                        alt={product?.productName || "Product"}
-                        title={product?.productName || "Product"}
+                        alt={product?.productName[0] || "Product"}
+                        title={product?.productName[0] || "Product"}
                         width={40}
                         height={40}
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <span className="font-medium text-gray-900 line-clamp-2">
-                      {product?.productName || "N/A"}
+                      {product?.productName[0] || "N/A"}
                     </span>
                   </div>
                 </td>
@@ -136,7 +135,7 @@ const ListProductSoldThisMonth = ({ productSoldThisMonth }) => {
                 <td className="px-6 py-3">
                   <span className="inline-flex items-center gap-2 px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-xs font-medium border border-purple-200">
                     <i className="fa fa-tag"></i>
-                    {product?.productCategory || "Non catégorisé"}
+                    {product?.productCategory[0] || "Non catégorisé"}
                   </span>
                 </td>
               </tr>
