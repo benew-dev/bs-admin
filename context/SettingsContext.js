@@ -54,8 +54,6 @@ export const SettingsProvider = ({ children }) => {
         requestData,
       );
 
-      consol;
-
       if (data?.success) {
         router.push("/admin/settings");
         router.refresh();
