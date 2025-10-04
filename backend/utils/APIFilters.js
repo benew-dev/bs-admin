@@ -28,6 +28,20 @@ class APIFilters {
       };
     }
 
+    if (this.queryStr?.get("paymentStatus")) {
+      queryCopy = {
+        paymentStatus: this.queryStr?.get("paymentStatus"),
+        ...queryCopy,
+      };
+    }
+
+    if (this.queryStr?.get("paymentStatus")) {
+      queryCopy = {
+        paymentStatus: this.queryStr?.get("paymentStatus"),
+        ...queryCopy,
+      };
+    }
+
     const removeFields = ["keyword", "page"];
     removeFields.forEach((el) => delete queryCopy[el]);
 
