@@ -3,16 +3,7 @@
 import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "react-toastify";
-
-// Mock context pour la démo
-const SettingsContext = {
-  setCategories: () => {},
-  deleteCategory: () => Promise.resolve(),
-  deletePayment: () => Promise.resolve(),
-  toggleCategoryStatus: () => Promise.resolve(),
-  error: null,
-  clearErrors: () => {},
-};
+import SettingsContext from "@/context/SettingsContext";
 
 const Settings = ({ dataCategory, dataPayment }) => {
   const {
@@ -22,7 +13,7 @@ const Settings = ({ dataCategory, dataPayment }) => {
     toggleCategoryStatus,
     error,
     clearErrors,
-  } = useContext(SettingsContext) || SettingsContext;
+  } = useContext(SettingsContext);
 
   const [loadingStates, setLoadingStates] = useState({
     deletingCategories: new Set(),

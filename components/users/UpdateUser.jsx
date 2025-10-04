@@ -1,20 +1,12 @@
 "use client";
 
+import AuthContext from "@/context/AuthContext";
 import { memo, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-// Simuler AuthContext pour la démo
-const AuthContext = {
-  error: null,
-  updateUser: (id, data) => console.log("Update user:", id, data),
-  clearErrors: () => {},
-  updated: false,
-  setUpdated: () => {},
-};
-
 const UpdateUser = memo(({ user }) => {
   const { error, updateUser, clearErrors, updated, setUpdated } =
-    useContext(AuthContext) || AuthContext;
+    useContext(AuthContext);
 
   const [formData, setFormData] = useState({
     name: user?.name || "",

@@ -4,12 +4,13 @@ import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const AddPaymentType = () => {
+  const { newPaymentType, error, clearErrors } = useContext(SettingsContext);
   const [platformName, setPlatformName] = useState("");
   const [platformNumber, setPlatformNumber] = useState("");
 
   const submitHandler = (e) => {
     e.preventDefault();
-    console.log("Submit:", platformName, platformNumber);
+    newPaymentType(platformName, platformNumber); // ✅ Correct
   };
 
   return (

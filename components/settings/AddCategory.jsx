@@ -2,17 +2,10 @@
 
 import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-
-// Mock context
-const SettingsContext = {
-  newCategory: () => {},
-  error: null,
-  clearErrors: () => {},
-};
+import SettingsContext from "@/context/SettingsContext";
 
 const AddCategory = () => {
-  const { newCategory, error, clearErrors } =
-    useContext(SettingsContext) || SettingsContext;
+  const { newCategory, error, clearErrors } = useContext(SettingsContext);
   const [category, setCategory] = useState("");
   const [isActive, setIsActive] = useState(false);
 
