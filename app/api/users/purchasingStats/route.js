@@ -1,6 +1,5 @@
-/* eslint-disable no-unused-vars */
-import dbConnect from '@/backend/config/dbConnect';
-import { getUserAnalytics } from '@/backend/pipelines/userPipelines';
+import dbConnect from "@/backend/config/dbConnect";
+import { getUserAnalytics } from "@/backend/pipelines/userPipelines";
 
 export async function GET(req) {
   try {
@@ -34,27 +33,26 @@ export async function GET(req) {
           (buyer) => ({
             _id: buyer._id,
             totalPurchases: buyer.totalSpent,
-            totalTaxes: buyer.totalTaxes,
             result: [buyer.result],
           }),
         ),
-        // Bonus : statistiques détaillées
+        // Bonus : statistiques détaillées (ADAPTÉES AU MODÈLE ORDER - sans taxAmount)
         monthlyRevenue: monthlyAnalytics.periodStats[0]?.totalRevenue || 0,
         monthlyAvgOrderValue:
           monthlyAnalytics.periodStats[0]?.avgOrderValue || 0,
         topBuyersDetails: globalAnalytics.topBuyers.slice(0, 5), // Top 5 acheteurs avec détails
       }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } },
+      { status: 200, headers: { "Content-Type": "application/json" } },
     );
   } catch (error) {
-    console.error('Error in getPurchasingsStats:', error);
+    console.error("Error in getPurchasingsStats:", error);
 
     return new Response(
       JSON.stringify({
         success: false,
         error: error.message,
       }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } },
+      { status: 500, headers: { "Content-Type": "application/json" } },
     );
   }
 }

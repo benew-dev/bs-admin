@@ -1,7 +1,5 @@
 /* eslint-disable no-unused-vars */
 import dbConnect from "@/backend/config/dbConnect";
-import DeliveryPrice from "@/backend/models/deliveryPrice";
-import Address from "@/backend/models/address";
 import Order from "@/backend/models/order";
 import { getMonthlyOrdersAnalytics } from "@/backend/pipelines/orderPipelines";
 import {
@@ -29,23 +27,22 @@ export async function GET(req) {
 
   if (searchParams?.get("keyword")) {
     const orderNumber = searchParams?.get("keyword");
-    orders = await Order.findOne({ orderNumber: orderNumber }).populate(
-      "shippingInfo user",
-    );
+    // ADAPTÉ AU MODÈLE ORDER : Suppression de .populate("shippingInfo user")
+    orders = await Order.findOne({ orderNumber: orderNumber }).populate("user");
 
     if (orders) filteredOrdersCount = 1;
   } else {
     const apiFilters = new APIFilters(Order.find(), searchParams).filter();
 
-    orders = await apiFilters.query
-      .populate("shippingInfo user")
-      .sort({ createdAt: -1 });
+    // ADAPTÉ AU MODÈLE ORDER : Suppression de .populate("shippingInfo")
+    orders = await apiFilters.query.populate("user").sort({ createdAt: -1 });
     filteredOrdersCount = orders.length;
 
     apiFilters.pagination(resPerPage);
+    // ADAPTÉ AU MODÈLE ORDER : Suppression de .populate("shippingInfo")
     orders = await apiFilters.query
       .clone()
-      .populate("shippingInfo user")
+      .populate("user")
       .sort({ createdAt: -1 });
 
     result = ordersCount / resPerPage;
@@ -63,6 +60,7 @@ export async function GET(req) {
   );
 
   // Stats supplémentaires (depuis le début, pas seulement ce mois)
+  // ADAPTÉ AU MODÈLE ORDER : Comptage des commandes payées au lieu de "delivered"
   const deliveredOrdersCount = await Order.countDocuments({
     paymentStatus: "paid",
   });
@@ -81,19 +79,16 @@ export async function GET(req) {
   const userThatBoughtMostSinceBeginning =
     await userThatBoughtMostSinceBeginningPipeline();
 
-  const deliveryPrice = await DeliveryPrice.find();
-
   const overviewPattern = /overview/;
 
   if (overviewPattern.test(req?.url)) {
     return NextResponse.json(
       {
-        deliveryPrice,
         userThatBoughtMostSinceBeginning,
         descListProductSoldThisMonth,
         descListCategorySoldSinceBeginning,
         descListProductSoldSinceBeginning,
-        // Utilisation des nouvelles stats
+        // Utilisation des nouvelles stats basées sur paymentStatus
         totalOrdersUnpaidThisMonth: [
           { totalOrdersUnpaid: monthlyStats.totalOrdersUnpaid },
         ],
@@ -111,12 +106,10 @@ export async function GET(req) {
   } else {
     return NextResponse.json(
       {
-        deliveryPrice,
-        // Utilisation des nouvelles stats
-        totalOrdersDeliveredThisMonth: [
-          { totalOrdersDelivered: monthlyStats.totalOrdersDelivered },
-        ],
-        deliveredOrdersCount,
+        // ADAPTÉ AU MODÈLE ORDER :
+        // Suppression de totalOrdersDeliveredThisMonth (n'existe plus)
+        // On utilise totalOrdersPaid à la place de delivered
+        deliveredOrdersCount, // Count global des commandes payées
         totalOrdersThisMonth: [{ totalOrders: monthlyStats.totalOrders }],
         totalPages,
         ordersCount,

@@ -1,8 +1,8 @@
-import dbConnect from '@/backend/config/dbConnect';
-import User from '@/backend/models/user';
-import { getUserRegistrationStats } from '@/backend/pipelines/userPipelines';
-import APIFilters from '@/backend/utils/APIFilters';
-import { NextResponse } from 'next/server';
+import dbConnect from "@/backend/config/dbConnect";
+import User from "@/backend/models/user";
+import { getUserRegistrationStats } from "@/backend/pipelines/userPipelines";
+import APIFilters from "@/backend/utils/APIFilters";
+import { NextResponse } from "next/server";
 
 export async function GET(req) {
   try {
@@ -35,7 +35,7 @@ export async function GET(req) {
       await Promise.all([
         getUserRegistrationStats(currentMonth, currentYear),
         getUserRegistrationStats(lastMonth, currentYear),
-        User.countDocuments({ role: 'user' }),
+        User.countDocuments({ role: "user" }),
       ]);
 
     return NextResponse.json({
@@ -50,7 +50,7 @@ export async function GET(req) {
       dailyRegistrationTrend: currentMonthStats.dailyTrend || [],
     });
   } catch (error) {
-    console.error('Error in getUsers:', error);
+    console.error("Error in getUsers:", error);
 
     return NextResponse.json(
       { success: false, error: error.message },

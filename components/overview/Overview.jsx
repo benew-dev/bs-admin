@@ -1,32 +1,30 @@
 /* eslint-disable react/prop-types */
-'use client';
+"use client";
 
-import dynamic from 'next/dynamic';
-import React, { useContext, useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import OrdersFilter from '../orders/OrdersFilter';
-import OrderContext from '@/context/OrderContext';
-import Loading from '@/app/loading';
+import dynamic from "next/dynamic";
+import React, { useContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import OrdersFilter from "../orders/OrdersFilter";
+import OrderContext from "@/context/OrderContext";
+import Loading from "@/app/loading";
 
 const CustomPagination = dynamic(
-  () => import('@/components/layouts/CustomPagniation'),
+  () => import("@/components/layouts/CustomPagniation"),
 );
 
-const OrdersTable = dynamic(() => import('../orders/table/OrdersTable'), {
+const OrdersTable = dynamic(() => import("../orders/table/OrdersTable"), {
   loading: () => <Loading />,
 });
 
-import Search from '../layouts/Search';
-import SettingsContext from '@/context/SettingsContext';
+import Search from "../layouts/Search";
 
-const OverviewAllStats = dynamic(() => import('./OverviewAllStats'), {
+const OverviewAllStats = dynamic(() => import("./OverviewAllStats"), {
   loading: () => <Loading />,
 });
 
-const Overview = ({ orders, deliveryPrices, categories, paymentTypes }) => {
+const Overview = ({ orders, categories, paymentTypes }) => {
   const { deleteOrder, error, loading, setLoading, clearErrors } =
     useContext(OrderContext);
-  const { setDeliveryPrice, setCategories } = useContext(SettingsContext);
 
   const [open, setOpen] = useState(false);
   const [openStats, setOpenStats] = useState(false);
@@ -35,8 +33,6 @@ const Overview = ({ orders, deliveryPrices, categories, paymentTypes }) => {
   useEffect(() => {
     if (loading || orders !== null) {
       setLoading(false);
-      setDeliveryPrice(orders?.deliveryPrice[0]?.deliveryPrice);
-      setCategories(categories);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orders]);
@@ -54,132 +50,166 @@ const Overview = ({ orders, deliveryPrices, categories, paymentTypes }) => {
   };
 
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-      <div className="flex justify-between my-5">
-        <h1 className="text-3xl ml-4 font-bold">Business Overview</h1>
-        <div className="flex justify-center items-baseline mr-4">
-          <button
-            onClick={() => setOpenAdditionalData((prev) => !prev)}
-            className="px-2 inline-block text-blue-500 bg-white shadow-xs border border-blue-600 rounded-md hover:bg-gray-100 cursor-pointer mr-4"
-          >
-            <i className="fa fa-info-circle" aria-hidden="true"></i>
-          </button>
-          <button
-            onClick={() => setOpenStats((prev) => !prev)}
-            className="px-2 inline-block text-blue-500 bg-white shadow-xs border border-blue-600 rounded-md hover:bg-gray-100 cursor-pointer mr-4"
-          >
-            <i className="fa fa-chart-simple" aria-hidden="true"></i>
-          </button>
-          <button
-            onClick={() => setOpen((prev) => !prev)}
-            className="px-2 inline-block text-blue-500 bg-white shadow-xs border border-blue-600 rounded-md hover:bg-gray-100 cursor-pointer mr-4"
-          >
-            <i className="fa fa-sliders" aria-hidden="true"></i>
-          </button>
-          <Search setLoading={setLoading} />
-        </div>
-      </div>
-      <hr className="my-2 mx-9" />
-
-      <OverviewAllStats
-        open={openStats}
-        ordersCount={orders?.ordersCount}
-        totalOrdersThisMonth={orders?.totalOrdersThisMonth}
-        totalOrdersPaidThisMonth={orders?.totalOrdersPaidThisMonth}
-        totalOrdersUnpaidThisMonth={orders?.totalOrdersUnpaidThisMonth}
-        bestProductSoldSinceBeginning={
-          orders?.descListProductSoldSinceBeginning[0] !== undefined &&
-          orders?.descListProductSoldSinceBeginning[0]
-        }
-        bestCategorySoldSinceBeginning={
-          orders?.descListCategorySoldSinceBeginning[0] !== undefined &&
-          orders?.descListCategorySoldSinceBeginning[0]
-        }
-        bestProductSoldThisMonth={
-          orders?.descListProductSoldThisMonth[0] !== undefined &&
-          orders?.descListProductSoldThisMonth[0]
-        }
-        userThatBoughtMostSinceBeginning={
-          orders?.userThatBoughtMostSinceBeginning
-        }
-      />
-
-      <hr className="my-2 mx-9" />
-
-      {/* Additional Data Section */}
-      <div className={`${!openAdditionalData && 'hidden'}`}>
-        <div className="flex flex-col mb-7">
-          <h4 className="text-lg ml-2 mb-4 font-bold w-full text-center underline">
-            Additional Business Information
-          </h4>
-
-          {/* Delivery Prices */}
-          <div className="mb-4">
-            <h5 className="text-md ml-4 font-semibold">Delivery Prices</h5>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 px-4">
-              {deliveryPrices?.map((price, index) => (
-                <div
-                  key={index}
-                  className="p-2 bg-blue-100 rounded-md text-center"
-                >
-                  <span className="font-bold">₦{price.deliveryPrice}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Categories */}
-          <div className="mb-4">
-            <h5 className="text-md ml-4 font-semibold">Categories</h5>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 px-4">
-              {categories?.map((category, index) => (
-                <div
-                  key={index}
-                  className="p-2 bg-green-100 rounded-md text-center"
-                >
-                  <span>{category.categoryName}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Payment Types */}
+    <div className="relative overflow-x-auto">
+      {/* Header amélioré avec gradient */}
+      <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-t-lg shadow-lg p-6 mb-6">
+        <div className="flex justify-between items-center">
           <div>
-            <h5 className="text-md ml-4 font-semibold">Payment Platforms</h5>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 px-4">
-              {paymentTypes?.map((payment, index) => (
-                <div
-                  key={index}
-                  className="p-2 bg-purple-100 rounded-md text-center"
-                >
-                  <span className="block font-bold">{payment.paymentName}</span>
-                  <span className="text-sm text-gray-600">
-                    {payment.paymentNumber}
-                  </span>
-                </div>
-              ))}
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Business Overview
+            </h1>
+            <p className="text-indigo-100 text-sm">
+              Vue d'ensemble complète de votre activité commerciale
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setOpenAdditionalData((prev) => !prev)}
+              className="px-4 py-2.5 bg-white text-indigo-600 font-medium rounded-lg hover:bg-indigo-50 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
+              title="Informations additionnelles"
+            >
+              <i className="fa fa-info-circle" aria-hidden="true"></i>
+              <span className="hidden sm:inline">Info</span>
+            </button>
+            <button
+              onClick={() => setOpenStats((prev) => !prev)}
+              className="px-4 py-2.5 bg-white text-indigo-600 font-medium rounded-lg hover:bg-indigo-50 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
+              title="Afficher les statistiques"
+            >
+              <i className="fa fa-chart-simple" aria-hidden="true"></i>
+              <span className="hidden sm:inline">Stats</span>
+            </button>
+            <button
+              onClick={() => setOpen((prev) => !prev)}
+              className="px-4 py-2.5 bg-white text-indigo-600 font-medium rounded-lg hover:bg-indigo-50 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
+              title="Filtrer les commandes"
+            >
+              <i className="fa fa-sliders" aria-hidden="true"></i>
+              <span className="hidden sm:inline">Filtres</span>
+            </button>
+            <Search setLoading={setLoading} />
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Section */}
+      <div className={`${!openStats && "hidden"} mb-6`}>
+        <OverviewAllStats
+          open={openStats}
+          ordersCount={orders?.ordersCount}
+          totalOrdersThisMonth={orders?.totalOrdersThisMonth}
+          totalOrdersPaidThisMonth={orders?.totalOrdersPaidThisMonth}
+          totalOrdersUnpaidThisMonth={orders?.totalOrdersUnpaidThisMonth}
+          bestProductSoldSinceBeginning={
+            orders?.descListProductSoldSinceBeginning?.[0] || null
+          }
+          bestCategorySoldSinceBeginning={
+            orders?.descListCategorySoldSinceBeginning?.[0] || null
+          }
+          bestProductSoldThisMonth={
+            orders?.descListProductSoldThisMonth?.[0] || null
+          }
+          userThatBoughtMostSinceBeginning={
+            orders?.userThatBoughtMostSinceBeginning
+          }
+        />
+      </div>
+
+      {/* Additional Data Section avec design amélioré */}
+      <div className={`${!openAdditionalData && "hidden"} mb-6`}>
+        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200">
+            <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+              <i className="fa fa-database text-indigo-600"></i>
+            </div>
+            <div>
+              <h4 className="text-lg font-bold text-gray-800">
+                Informations Complémentaires
+              </h4>
+              <p className="text-sm text-gray-500">
+                Données de configuration de votre boutique
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {/* Categories */}
+            <div>
+              <h5 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide flex items-center gap-2">
+                <i className="fa fa-tags text-gray-500"></i>
+                Catégories de Produits
+              </h5>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {categories?.map((category, index) => (
+                  <div
+                    key={index}
+                    className="p-3 bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-200 rounded-lg text-center hover:shadow-md transition-all duration-200"
+                  >
+                    <i className="fa fa-tag text-green-600 mb-1"></i>
+                    <p className="font-medium text-gray-800 text-sm">
+                      {category.categoryName}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Payment Types */}
+            <div>
+              <h5 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide flex items-center gap-2">
+                <i className="fa fa-credit-card text-gray-500"></i>
+                Plateformes de Paiement
+              </h5>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {paymentTypes?.map((payment, index) => (
+                  <div
+                    key={index}
+                    className="p-3 bg-gradient-to-r from-purple-50 to-purple-100 border-2 border-purple-200 rounded-lg hover:shadow-md transition-all duration-200"
+                  >
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <i className="fa fa-wallet text-purple-600"></i>
+                      <span className="font-bold text-gray-800">
+                        {payment.paymentName}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 font-mono">
+                      {payment.paymentNumber}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <hr className="my-2 mx-9" />
-
-      <OrdersFilter open={open} setLoading={setLoading} />
-
-      {loading ? (
-        <Loading />
-      ) : (
-        <OrdersTable
-          orders={orders?.orders}
-          itemCount={orders?.filteredOrdersCount}
-          deleteHandler={deleteHandler}
-        />
-      )}
-
-      <div className="mb-6">
-        <CustomPagination totalPages={orders?.totalPages} />
+      {/* Filters Section */}
+      <div className={`${!open && "hidden"} mb-6`}>
+        <OrdersFilter open={open} setLoading={setLoading} />
       </div>
+
+      {/* Table Section avec design amélioré */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100">
+        {loading ? (
+          <div className="p-8">
+            <Loading />
+          </div>
+        ) : (
+          <OrdersTable
+            orders={orders?.orders}
+            itemCount={orders?.filteredOrdersCount}
+            deleteHandler={deleteHandler}
+          />
+        )}
+      </div>
+
+      {/* Pagination avec design amélioré */}
+      {orders?.totalPages > 1 && (
+        <div className="mt-6 flex justify-center">
+          <CustomPagination totalPages={orders?.totalPages} />
+        </div>
+      )}
     </div>
   );
 };

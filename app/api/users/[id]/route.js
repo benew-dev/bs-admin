@@ -1,11 +1,9 @@
-/* eslint-disable no-unused-vars */
-import dbConnect from '@/backend/config/dbConnect';
-import Order from '@/backend/models/order';
-import User from '@/backend/models/user';
-import Address from '@/backend/models/address';
-import mongoose from 'mongoose';
-import { NextResponse } from 'next/server';
-import Cart from '@/backend/models/cart';
+import dbConnect from "@/backend/config/dbConnect";
+import Order from "@/backend/models/order";
+import User from "@/backend/models/user";
+import mongoose from "mongoose";
+import { NextResponse } from "next/server";
+import Cart from "@/backend/models/cart";
 
 export async function GET(req, { params }) {
   const { id } = params;
@@ -16,17 +14,18 @@ export async function GET(req, { params }) {
 
     if (!user) {
       return NextResponse.json(
-        { success: false, error: 'No user found' },
+        { success: false, error: "No user found" },
         { status: 404 },
       );
     }
 
     // Utiliser la projection pour limiter les champs retournés
+    // ADAPTÉ AU MODÈLE ORDER : Suppression de shippingInfo, orderStatus
     const orders = await Order.find({
       user: new mongoose.Types.ObjectId(user?._id),
     })
       .select(
-        'orderNumber totalAmount shippingInfo orderStatus paymentInfo.typePayment paymentStatus createdAt',
+        "orderNumber totalAmount paymentInfo.typePayment paymentStatus createdAt paidAt",
       )
       .sort({ createdAt: -1 })
       .limit(50); // Limiter aux 50 dernières commandes
@@ -44,7 +43,7 @@ export async function GET(req, { params }) {
       orderCount: orders.length,
     });
   } catch (error) {
-    console.error('Error in getUser:', error);
+    console.error("Error in getUser:", error);
 
     return NextResponse.json(
       { success: false, error: error.message },
@@ -60,7 +59,7 @@ export async function PUT(req, { params }) {
 
   if (!user) {
     return NextResponse.json(
-      { success: false, error: 'No user found' },
+      { success: false, error: "No user found" },
       { status: 404 },
     );
   }
@@ -77,7 +76,7 @@ export async function DELETE(req, { params }) {
 
   if (!user) {
     return NextResponse.json(
-      { success: false, error: 'No user found' },
+      { success: false, error: "No user found" },
       { status: 404 },
     );
   }
@@ -90,7 +89,7 @@ export async function DELETE(req, { params }) {
     return NextResponse.json(
       {
         success: false,
-        error: 'Cannot delete user. It has one or more carts.',
+        error: "Cannot delete user. It has one or more carts.",
       },
       { status: 400 },
     );
