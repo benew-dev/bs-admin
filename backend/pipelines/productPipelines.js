@@ -1,30 +1,30 @@
-import mongoose from 'mongoose';
-import Order from '../models/order';
+import mongoose from "mongoose";
+import Order from "../models/order";
 
 export const descListProductSoldSinceBeginningPipeline = async () => {
   const aggregation = await Order.aggregate([
     {
       $match: {
-        paymentStatus: 'paid',
+        paymentStatus: "paid",
       },
     },
     {
       $unwind: {
-        path: '$orderItems',
+        path: "$orderItems",
       },
     },
     {
       $group: {
-        _id: '$orderItems.product',
+        _id: "$orderItems.product",
         totalAmount: {
-          $sum: '$orderItems.price',
+          $sum: "$orderItems.subtotal",
         },
         totalQuantity: {
-          $sum: '$orderItems.quantity',
+          $sum: "$orderItems.quantity",
         },
-        productName: { $push: '$orderItems.name' },
-        productCategory: { $push: '$orderItems.category' },
-        productImage: { $push: '$orderItems.image' },
+        productName: { $push: "$orderItems.name" },
+        productCategory: { $push: "$orderItems.category" },
+        productImage: { $push: "$orderItems.image" },
       },
     },
     {
@@ -42,14 +42,14 @@ export const descListProductSoldThisMonthPipeline = async (month, year) => {
   const aggregation = await Order.aggregate([
     {
       $match: {
-        paymentStatus: 'paid',
+        paymentStatus: "paid",
         $expr: {
           $and: [
             {
               $eq: [
                 year,
                 {
-                  $year: '$createdAt',
+                  $year: "$createdAt",
                 },
               ],
             },
@@ -57,7 +57,7 @@ export const descListProductSoldThisMonthPipeline = async (month, year) => {
               $eq: [
                 month,
                 {
-                  $month: '$createdAt',
+                  $month: "$createdAt",
                 },
               ],
             },
@@ -67,21 +67,21 @@ export const descListProductSoldThisMonthPipeline = async (month, year) => {
     },
     {
       $unwind: {
-        path: '$orderItems',
+        path: "$orderItems",
       },
     },
     {
       $group: {
-        _id: '$orderItems.product',
+        _id: "$orderItems.product",
         totalAmount: {
-          $sum: '$orderItems.price',
+          $sum: "$orderItems.subtotal",
         },
         totalQuantity: {
-          $sum: '$orderItems.quantity',
+          $sum: "$orderItems.quantity",
         },
-        productName: { $push: '$orderItems.name' },
-        productCategory: { $push: '$orderItems.category' },
-        productImage: { $push: '$orderItems.image' },
+        productName: { $push: "$orderItems.name" },
+        productCategory: { $push: "$orderItems.category" },
+        productImage: { $push: "$orderItems.image" },
       },
     },
     {
@@ -99,25 +99,25 @@ export const descListCategorySoldSinceBeginningPipeline = async () => {
   const aggregation = await Order.aggregate([
     {
       $match: {
-        paymentStatus: 'paid',
+        paymentStatus: "paid",
       },
     },
     {
       $unwind: {
-        path: '$orderItems',
+        path: "$orderItems",
       },
     },
     {
       $group: {
-        _id: '$orderItems.category',
+        _id: "$orderItems.category",
         totalAmount: {
-          $sum: '$orderItems.price',
+          $sum: "$orderItems.subtotal",
         },
         totalQuantity: {
-          $sum: '$orderItems.quantity',
+          $sum: "$orderItems.quantity",
         },
-        productName: { $push: '$orderItems.name' },
-        productImage: { $push: '$orderItems.image' },
+        productName: { $push: "$orderItems.name" },
+        productImage: { $push: "$orderItems.image" },
       },
     },
     {
@@ -135,14 +135,14 @@ export const descListCategorySoldThisMonthPipeline = async (month, year) => {
   const aggregation = await Order.aggregate([
     {
       $match: {
-        paymentStatus: 'paid',
+        paymentStatus: "paid",
         $expr: {
           $and: [
             {
               $eq: [
                 year,
                 {
-                  $year: '$createdAt',
+                  $year: "$createdAt",
                 },
               ],
             },
@@ -150,7 +150,7 @@ export const descListCategorySoldThisMonthPipeline = async (month, year) => {
               $eq: [
                 month,
                 {
-                  $month: '$createdAt',
+                  $month: "$createdAt",
                 },
               ],
             },
@@ -160,20 +160,20 @@ export const descListCategorySoldThisMonthPipeline = async (month, year) => {
     },
     {
       $unwind: {
-        path: '$orderItems',
+        path: "$orderItems",
       },
     },
     {
       $group: {
-        _id: '$orderItems.category',
+        _id: "$orderItems.category",
         totalAmount: {
-          $sum: '$orderItems.price',
+          $sum: "$orderItems.subtotal",
         },
         totalQuantity: {
-          $sum: '$orderItems.quantity',
+          $sum: "$orderItems.quantity",
         },
-        productName: { $push: '$orderItems.name' },
-        productImage: { $push: '$orderItems.image' },
+        productName: { $push: "$orderItems.name" },
+        productImage: { $push: "$orderItems.image" },
       },
     },
     {
@@ -191,28 +191,28 @@ export const orderIDsForProductPipeline = async (id) => {
   const aggregation = await Order.aggregate([
     {
       $unwind: {
-        path: '$orderItems',
+        path: "$orderItems",
       },
     },
     {
       $match: {
-        'orderItems.product': new mongoose.Types.ObjectId(id),
+        "orderItems.product": new mongoose.Types.ObjectId(id),
       },
     },
     {
       $group: {
-        _id: '$_id',
-        details: { $push: { date: '$createdAt', payment: '$paymentStatus' } },
+        _id: "$_id",
+        details: { $push: { date: "$createdAt", payment: "$paymentStatus" } },
       },
     },
     {
       $unwind: {
-        path: '$details',
+        path: "$details",
       },
     },
     {
       $sort: {
-        'details.date': -1,
+        "details.date": -1,
       },
     },
   ]);
@@ -224,13 +224,13 @@ export const revenuesGeneratedPerProduct = async (id) => {
   const aggregation = await Order.aggregate([
     {
       $unwind: {
-        path: '$orderItems',
+        path: "$orderItems",
       },
     },
     {
       $match: {
-        paymentStatus: 'paid',
-        'orderItems.product': new mongoose.Types.ObjectId(id),
+        paymentStatus: "paid",
+        "orderItems.product": new mongoose.Types.ObjectId(id),
       },
     },
     {
@@ -240,12 +240,12 @@ export const revenuesGeneratedPerProduct = async (id) => {
     },
     {
       $group: {
-        _id: '$orderItems.product',
+        _id: "$orderItems.product",
         details: {
           $push: {
-            date: '$createdAt',
-            quantity: '$orderItems.quantity',
-            price: '$orderItems.price',
+            date: "$createdAt",
+            quantity: "$orderItems.quantity",
+            price: "$orderItems.subtotal",
           },
         },
       },
