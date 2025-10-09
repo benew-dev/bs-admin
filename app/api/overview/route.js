@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import dbConnect from "@/backend/config/dbConnect";
 import Order from "@/backend/models/order";
 import { getMonthlyOrdersAnalytics } from "@/backend/pipelines/orderPipelines";
