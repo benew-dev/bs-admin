@@ -2,33 +2,28 @@ import React from "react";
 import dynamic from "next/dynamic";
 import Loading from "../loading";
 
-const Overview = dynamic(() => import("@/components/overview/Overview"), {
-  loading: () => <Loading />,
-});
+const MainDashboard = dynamic(
+  () => import("@/components/dashboard/MainDashboard"),
+  {
+    loading: () => <Loading />,
+  },
+);
 
 import {
-  getAllOrders,
-  getCategoryData,
-  getPaymentTypeData,
+  getDashboardData,
+  getInsightsData,
 } from "@/backend/utils/server-only-methods";
 
 export const metadata = {
-  title: "Dashboard - Overview",
+  title: "Dashboard Admin - Vue d'ensemble",
+  description: "Tableau de bord administrateur avec statistiques et alertes",
 };
 
-// eslint-disable-next-line react/prop-types
-const HomePage = async ({ searchParams }) => {
-  const orders = await getAllOrders(await searchParams);
-  const categoryData = await getCategoryData();
-  const paymentTypeData = await getPaymentTypeData();
+const AdminPage = async () => {
+  const dashboardData = await getDashboardData();
+  const insightsData = await getInsightsData();
 
-  return (
-    <Overview
-      orders={orders}
-      categories={categoryData?.categories}
-      paymentTypes={paymentTypeData?.paymentTypes}
-    />
-  );
+  return <MainDashboard data={dashboardData} insights={insightsData} />;
 };
 
-export default HomePage;
+export default AdminPage;
