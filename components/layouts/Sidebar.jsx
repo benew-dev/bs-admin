@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { memo, useState } from 'react';
-import Link from 'next/link';
-import { signOut } from 'next-auth/react';
-import { useParams, usePathname } from 'next/navigation';
+import React, { memo, useState } from "react";
+import Link from "next/link";
+import { signOut } from "next-auth/react";
+import { useParams, usePathname } from "next/navigation";
 
 const Sidebar = memo(() => {
   const pathName = usePathname();
@@ -13,18 +13,20 @@ const Sidebar = memo(() => {
   const [openProducts, setOpenProducts] = useState(false);
   const [openOrders, setOpenOrders] = useState(false);
   const [openUsers, setOpenUsers] = useState(false);
+  const [openAnalytics, setOpenAnalytics] = useState(false);
+  const [openReports, setOpenReports] = useState(false);
 
   const isSettings = () => {
     let isTrue;
 
     switch (pathName) {
-      case '/admin/settings':
+      case "/admin/settings":
         isTrue = true;
         break;
-      case '/admin/settings/categories/add':
+      case "/admin/settings/categories/add":
         isTrue = true;
         break;
-      case '/admin/settings/paymentType/add':
+      case "/admin/settings/paymentType/add":
         isTrue = true;
         break;
 
@@ -40,7 +42,7 @@ const Sidebar = memo(() => {
     let isTrue;
 
     switch (pathName) {
-      case '/admin/products':
+      case "/admin/products":
         isTrue = true;
         break;
       case `/admin/products/${params?.id}/upload_images`:
@@ -62,7 +64,7 @@ const Sidebar = memo(() => {
     let isTrue;
 
     switch (pathName) {
-      case '/admin/orders':
+      case "/admin/orders":
         isTrue = true;
         break;
       case `/admin/orders/${params?.id}`:
@@ -81,7 +83,7 @@ const Sidebar = memo(() => {
     let isTrue;
 
     switch (pathName) {
-      case '/admin/users':
+      case "/admin/users":
         isTrue = true;
         break;
       case `/admin/users/${params?.id}`:
@@ -105,11 +107,11 @@ const Sidebar = memo(() => {
       <ul className="sidebar">
         <>
           <li>
-            {' '}
+            {" "}
             <Link
-              onClick={() => setActivePart('')}
+              onClick={() => setActivePart("")}
               href="/admin"
-              className={`flex gap-2 text-sm px-3 py-2 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${pathName === '/admin' && 'bg-blue-100'}`}
+              className={`flex gap-2 text-sm px-3 py-2 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${pathName === "/admin" && "bg-blue-100"}`}
             >
               <span>
                 <i className="fa fa-house" aria-hidden="true"></i>
@@ -118,12 +120,82 @@ const Sidebar = memo(() => {
             </Link>
           </li>
 
+          <li className="block px-3 py-2 text-gray-800 rounded-md">
+            <p
+              onClick={() => {
+                setActivePart("analytics");
+                setOpenAnalytics((prev) => !prev);
+              }}
+              className={`flex gap-2 mb-2 text-sm font-semibold cursor-pointer hover:bg-blue-100 hover:text-blue-500 ${activePart === "analytics" && "bg-blue-100"}`}
+            >
+              <span>
+                <i className="fa fa-chart-line" aria-hidden="true"></i>
+              </span>
+              <span>Analytics</span>
+            </p>{" "}
+            <ul className={`${!openAnalytics && "hidden"}`}>
+              <li>
+                <Link
+                  onClick={() => setActivePart("analytics")}
+                  href="/admin/analytics/weekly"
+                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${pathName === "/admin/analytics/weekly" && "bg-blue-100"}`}
+                >
+                  <span>
+                    <i className="fa fa-calendar-week" aria-hidden="true"></i>
+                  </span>
+                  <span>Weekly</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  onClick={() => setActivePart("analytics")}
+                  href="/admin/analytics/monthly"
+                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${pathName === "/admin/analytics/monthly" && "bg-blue-100"}`}
+                >
+                  <span>
+                    <i className="fa fa-calendar" aria-hidden="true"></i>
+                  </span>
+                  <span>Monthly</span>
+                </Link>
+              </li>
+            </ul>
+          </li>
+
+          <li className="block px-3 py-2 text-gray-800 rounded-md">
+            <p
+              onClick={() => {
+                setActivePart("reports");
+                setOpenReports((prev) => !prev);
+              }}
+              className={`flex gap-2 mb-2 text-sm font-semibold cursor-pointer hover:bg-blue-100 hover:text-blue-500 ${activePart === "reports" && "bg-blue-100"}`}
+            >
+              <span>
+                <i className="fa fa-file-pdf" aria-hidden="true"></i>
+              </span>
+              <span>Reports</span>
+            </p>{" "}
+            <ul className={`${!openReports && "hidden"}`}>
+              <li>
+                <Link
+                  onClick={() => setActivePart("reports")}
+                  href="/admin/reports/monthly"
+                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${pathName === "/admin/reports/monthly" && "bg-blue-100"}`}
+                >
+                  <span>
+                    <i className="fa fa-calendar" aria-hidden="true"></i>
+                  </span>
+                  <span>Monthly</span>
+                </Link>
+              </li>
+            </ul>
+          </li>
+
           <li>
-            {' '}
+            {" "}
             <Link
-              onClick={() => setActivePart('')}
+              onClick={() => setActivePart("")}
               href="/admin/settings"
-              className={`flex gap-2 text-sm px-3 py-2 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${isSettings() && 'bg-blue-100'}`}
+              className={`flex gap-2 text-sm px-3 py-2 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${isSettings() && "bg-blue-100"}`}
             >
               <span>
                 <i className="fa fa-gear" aria-hidden="true"></i>
@@ -135,23 +207,23 @@ const Sidebar = memo(() => {
           <li className="block px-3 py-2 text-gray-800 rounded-md">
             <p
               onClick={() => {
-                setActivePart('products');
+                setActivePart("products");
                 setOpenProducts((prev) => !prev);
               }}
-              className={`flex gap-2 mb-2 text-sm font-semibold cursor-pointer hover:bg-blue-100 hover:text-blue-500 ${activePart === 'products' && 'bg-blue-100'}`}
+              className={`flex gap-2 mb-2 text-sm font-semibold cursor-pointer hover:bg-blue-100 hover:text-blue-500 ${activePart === "products" && "bg-blue-100"}`}
             >
               <span>
                 <i className="fa fa-warehouse" aria-hidden="true"></i>
               </span>
               <span>Products</span>
-            </p>{' '}
-            <ul className={`${!openProducts && 'hidden'}`}>
+            </p>{" "}
+            <ul className={`${!openProducts && "hidden"}`}>
               <li>
-                {' '}
+                {" "}
                 <Link
-                  onClick={() => setActivePart('products')}
+                  onClick={() => setActivePart("products")}
                   href="/admin/products/new"
-                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${pathName === '/admin/products/new' && 'bg-blue-100'}`}
+                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${pathName === "/admin/products/new" && "bg-blue-100"}`}
                 >
                   <span>
                     <i className="fa fa-plus" aria-hidden="true"></i>
@@ -161,9 +233,9 @@ const Sidebar = memo(() => {
               </li>
               <li>
                 <Link
-                  onClick={() => setActivePart('products')}
+                  onClick={() => setActivePart("products")}
                   href="/admin/products"
-                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${isProductsInfo() && 'bg-blue-100'}`}
+                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${isProductsInfo() && "bg-blue-100"}`}
                 >
                   <span>
                     <i className="fa fa-file-lines" aria-hidden="true"></i>
@@ -173,9 +245,9 @@ const Sidebar = memo(() => {
               </li>
               <li>
                 <Link
-                  onClick={() => setActivePart('products')}
+                  onClick={() => setActivePart("products")}
                   href="/admin/products/sales"
-                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${pathName === '/admin/products/sales' && 'bg-blue-100'}`}
+                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${pathName === "/admin/products/sales" && "bg-blue-100"}`}
                 >
                   <span>
                     <i className="fa fa-chart-column" aria-hidden="true"></i>
@@ -189,22 +261,22 @@ const Sidebar = memo(() => {
           <li className="block px-3 py-2 text-gray-800 rounded-md">
             <p
               onClick={() => {
-                setActivePart('orders');
+                setActivePart("orders");
                 setOpenOrders((prev) => !prev);
               }}
-              className={`flex gap-2 mb-2 text-sm font-semibold cursor-pointer hover:bg-blue-100 hover:text-blue-500 ${activePart === 'orders' && 'bg-blue-100'}`}
+              className={`flex gap-2 mb-2 text-sm font-semibold cursor-pointer hover:bg-blue-100 hover:text-blue-500 ${activePart === "orders" && "bg-blue-100"}`}
             >
               <span>
                 <i className="fa fa-cart-shopping" aria-hidden="true"></i>
               </span>
               <span>Orders</span>
-            </p>{' '}
-            <ul className={`${!openOrders && 'hidden'}`}>
+            </p>{" "}
+            <ul className={`${!openOrders && "hidden"}`}>
               <li>
                 <Link
-                  onClick={() => setActivePart('orders')}
+                  onClick={() => setActivePart("orders")}
                   href="/admin/orders"
-                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${isOrders() && 'bg-blue-100'}`}
+                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${isOrders() && "bg-blue-100"}`}
                 >
                   <span>
                     <i className="fa fa-file-lines" aria-hidden="true"></i>
@@ -214,9 +286,9 @@ const Sidebar = memo(() => {
               </li>
               <li>
                 <Link
-                  onClick={() => setActivePart('orders')}
+                  onClick={() => setActivePart("orders")}
                   href="/admin/orders/purchasings"
-                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${pathName === '/admin/orders/purchasings' && 'bg-blue-100'}`}
+                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${pathName === "/admin/orders/purchasings" && "bg-blue-100"}`}
                 >
                   <span>
                     <i className="fa fa-chart-column" aria-hidden="true"></i>
@@ -230,22 +302,22 @@ const Sidebar = memo(() => {
           <li className="block px-3 py-2 text-gray-800 rounded-md">
             <p
               onClick={() => {
-                setActivePart('users');
+                setActivePart("users");
                 setOpenUsers((prev) => !prev);
               }}
-              className={`flex gap-2 mb-2 text-sm font-semibold cursor-pointer hover:bg-blue-100 hover:text-blue-500 ${activePart === 'users' && 'bg-blue-100'}`}
+              className={`flex gap-2 mb-2 text-sm font-semibold cursor-pointer hover:bg-blue-100 hover:text-blue-500 ${activePart === "users" && "bg-blue-100"}`}
             >
               <span>
                 <i className="fa fa-user" aria-hidden="true"></i>
               </span>
               <span>Users</span>
-            </p>{' '}
-            <ul className={`${!openUsers && 'hidden'}`}>
+            </p>{" "}
+            <ul className={`${!openUsers && "hidden"}`}>
               <li>
                 <Link
-                  onClick={() => setActivePart('users')}
+                  onClick={() => setActivePart("users")}
                   href="/admin/users"
-                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${isUsers() && 'bg-blue-100'}`}
+                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${isUsers() && "bg-blue-100"}`}
                 >
                   <span>
                     <i className="fa fa-file-lines" aria-hidden="true"></i>
@@ -255,9 +327,9 @@ const Sidebar = memo(() => {
               </li>
               <li>
                 <Link
-                  onClick={() => setActivePart('users')}
+                  onClick={() => setActivePart("users")}
                   href="/admin/users/stats"
-                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${pathName === '/admin/users/stats' && 'bg-blue-100'}`}
+                  className={`flex gap-2 text-xs justify-start pl-4 py-1 text-gray-800 hover:bg-blue-100 hover:text-blue-500 rounded-md ${pathName === "/admin/users/stats" && "bg-blue-100"}`}
                 >
                   <span>
                     <i className="fa fa-chart-column" aria-hidden="true"></i>
@@ -272,7 +344,7 @@ const Sidebar = memo(() => {
         </>
 
         <li>
-          {' '}
+          {" "}
           <a
             className="block px-3 py-2 text-red-800 hover:bg-red-100 hover:text-white-500 rounded-md cursor-pointer"
             onClick={logoutHandler}
@@ -285,6 +357,6 @@ const Sidebar = memo(() => {
   );
 });
 
-Sidebar.displayName = 'Sidebar';
+Sidebar.displayName = "Sidebar";
 
 export default Sidebar;
