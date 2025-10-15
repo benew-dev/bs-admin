@@ -275,3 +275,78 @@ export const getSingleUser = async (id) => {
 
   return data;
 };
+
+// NOUVELLE MÉTHODE POUR LE DASHBOARD
+export const getDashboardData = async () => {
+  const nextCookies = await cookies();
+
+  const cookieName = getCookieName();
+  const nextAuthSessionToken = nextCookies.get(cookieName);
+
+  const { data } = await axios.get(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/dashboard`,
+    {
+      headers: {
+        Cookie: `${nextAuthSessionToken?.name}=${nextAuthSessionToken?.value}`,
+      },
+    },
+  );
+
+  return data;
+};
+
+export const getInsightsData = async () => {
+  const nextCookies = await cookies();
+
+  const cookieName = getCookieName();
+  const nextAuthSessionToken = nextCookies.get(cookieName);
+
+  const { data } = await axios.get(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/insights`,
+    {
+      headers: {
+        Cookie: `${nextAuthSessionToken?.name}=${nextAuthSessionToken?.value}`,
+      },
+    },
+  );
+
+  return data;
+};
+
+// MÉTHODE POUR LES STATISTIQUES HEBDOMADAIRES
+export const getWeeklyStats = async () => {
+  const nextCookies = await cookies();
+
+  const cookieName = getCookieName();
+  const nextAuthSessionToken = nextCookies.get(cookieName);
+
+  const { data } = await axios.get(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/weekly-stats`,
+    {
+      headers: {
+        Cookie: `${nextAuthSessionToken?.name}=${nextAuthSessionToken?.value}`,
+      },
+    },
+  );
+
+  return data;
+};
+
+// MÉTHODE POUR LES STATISTIQUES MENSUELLES
+export const getMonthlyStats = async () => {
+  const nextCookies = await cookies();
+
+  const cookieName = getCookieName();
+  const nextAuthSessionToken = nextCookies.get(cookieName);
+
+  const { data } = await axios.get(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/monthly-stats`,
+    {
+      headers: {
+        Cookie: `${nextAuthSessionToken?.name}=${nextAuthSessionToken?.value}`,
+      },
+    },
+  );
+
+  return data;
+};
