@@ -14,7 +14,7 @@ export async function GET(req) {
   await isAuthenticatedUser(req, NextResponse);
 
   // Vérifier le role
-  await authorizeRoles(NextResponse, "admin");
+  authorizeRoles(NextResponse, "admin");
 
   // Connexion DB
   await dbConnect();

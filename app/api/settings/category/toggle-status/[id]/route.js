@@ -1,9 +1,19 @@
-import dbConnect from '@/backend/config/dbConnect';
-import Category from '@/backend/models/category';
-import { NextResponse } from 'next/server';
+import dbConnect from "@/backend/config/dbConnect";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
+import Category from "@/backend/models/category";
+import { NextResponse } from "next/server";
 
 export async function PUT(req, { params }) {
   try {
+    // Vérifier l'authentification
+    await isAuthenticatedUser(req, NextResponse);
+
+    // Vérifier le role
+    authorizeRoles(NextResponse, "admin");
+
     const { id } = params;
     await dbConnect();
     const category = await Category.findById(id);
@@ -12,7 +22,7 @@ export async function PUT(req, { params }) {
       return NextResponse.json(
         {
           success: false,
-          message: 'Category not found.',
+          message: "Category not found.",
         },
         { status: 404 },
       );
@@ -25,7 +35,7 @@ export async function PUT(req, { params }) {
     return NextResponse.json(
       {
         success: true,
-        message: `Category ${category.isActive ? 'activated' : 'deactivated'} successfully`,
+        message: `Category ${category.isActive ? "activated" : "deactivated"} successfully`,
         category,
       },
       { status: 200 },
@@ -34,7 +44,7 @@ export async function PUT(req, { params }) {
     return NextResponse.json(
       {
         success: false,
-        message: 'Server error',
+        message: "Server error",
         error: error.message,
       },
       { status: 500 },

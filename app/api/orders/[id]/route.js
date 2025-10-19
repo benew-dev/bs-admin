@@ -14,7 +14,7 @@ export async function GET(req, { params }) {
   await isAuthenticatedUser(req, NextResponse);
 
   // Vérifier le role
-  await authorizeRoles(NextResponse, "admin");
+  authorizeRoles(NextResponse, "admin");
 
   const { id } = params;
 
@@ -34,7 +34,7 @@ export async function PUT(req, { params }) {
   await isAuthenticatedUser(req, NextResponse);
 
   // Vérifier le role
-  await authorizeRoles(NextResponse, "admin");
+  authorizeRoles(NextResponse, "admin");
 
   const { id } = params;
   const body = await req.json();

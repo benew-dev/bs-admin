@@ -6,9 +6,19 @@ import {
   generateInsights,
   generateRecommendations,
 } from "@/backend/utils/insights";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
 
 export async function GET(req) {
   try {
+    // Vérifier l'authentification
+    await isAuthenticatedUser(req, NextResponse);
+
+    // Vérifier le role
+    authorizeRoles(NextResponse, "admin");
+
     await connectDB();
 
     const [insights, recommendations] = await Promise.all([

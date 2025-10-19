@@ -1,4 +1,8 @@
 import dbConnect from "@/backend/config/dbConnect";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
 import User from "@/backend/models/user";
 import { getUserRegistrationStats } from "@/backend/pipelines/userPipelines";
 import APIFilters from "@/backend/utils/APIFilters";
@@ -6,6 +10,12 @@ import { NextResponse } from "next/server";
 
 export async function GET(req) {
   try {
+    // Vérifier l'authentification
+    await isAuthenticatedUser(req, NextResponse);
+
+    // Vérifier le role
+    authorizeRoles(NextResponse, "admin");
+
     await dbConnect();
 
     const resPerPage = 2;

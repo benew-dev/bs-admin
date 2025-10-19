@@ -1,8 +1,18 @@
 import dbConnect from "@/backend/config/dbConnect";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
 import { getUserAnalytics } from "@/backend/pipelines/userPipelines";
 
 export async function GET(req) {
   try {
+    // Vérifier l'authentification
+    await isAuthenticatedUser(req, NextResponse);
+
+    // Vérifier le role
+    authorizeRoles(NextResponse, "admin");
+
     await dbConnect();
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();

@@ -4,11 +4,21 @@ import User from "@/backend/models/user";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import Cart from "@/backend/models/cart";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
 
 export async function GET(req, { params }) {
   const { id } = await params;
 
   try {
+    // Vérifier l'authentification
+    await isAuthenticatedUser(req, NextResponse);
+
+    // Vérifier le role
+    authorizeRoles(NextResponse, "admin");
+
     await dbConnect();
 
     // ✅ Utiliser .lean() pour éviter les middlewares Mongoose qui causent l'erreur
@@ -65,6 +75,12 @@ export async function PUT(req, { params }) {
   const { id } = await params;
 
   try {
+    // Vérifier l'authentification
+    await isAuthenticatedUser(req, NextResponse);
+
+    // Vérifier le role
+    authorizeRoles(NextResponse, "admin");
+
     await dbConnect();
 
     let user = await User.findById(id);
@@ -106,6 +122,12 @@ export async function DELETE(req, { params }) {
   const { id } = await params;
 
   try {
+    // Vérifier l'authentification
+    await isAuthenticatedUser(req, NextResponse);
+
+    // Vérifier le role
+    authorizeRoles(NextResponse, "admin");
+
     await dbConnect();
 
     let user = await User.findById(id);

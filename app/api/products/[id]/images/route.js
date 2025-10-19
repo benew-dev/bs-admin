@@ -1,11 +1,21 @@
-import dbConnect from '@/backend/config/dbConnect';
-import Product from '@/backend/models/product';
-import { NextResponse } from 'next/server';
-import { cloudinary } from '@/backend/utils/cloudinary';
+import dbConnect from "@/backend/config/dbConnect";
+import Product from "@/backend/models/product";
+import { NextResponse } from "next/server";
+import { cloudinary } from "@/backend/utils/cloudinary";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
 
 // POST - Ajouter des images au produit (depuis Cloudinary Upload Widget)
 export async function POST(req, { params }) {
   try {
+    // Vérifier l'authentification
+    await isAuthenticatedUser(req, NextResponse);
+
+    // Vérifier le role
+    authorizeRoles(NextResponse, "admin");
+
     const { id } = params;
     await dbConnect();
 
@@ -13,7 +23,7 @@ export async function POST(req, { params }) {
 
     if (!product) {
       return NextResponse.json(
-        { message: 'Product not found.' },
+        { message: "Product not found." },
         { status: 404 },
       );
     }
@@ -23,7 +33,7 @@ export async function POST(req, { params }) {
 
     if (!images || !Array.isArray(images)) {
       return NextResponse.json(
-        { message: 'Invalid images data.' },
+        { message: "Invalid images data." },
         { status: 400 },
       );
     }
@@ -46,9 +56,9 @@ export async function POST(req, { params }) {
       { status: 200 },
     );
   } catch (error) {
-    console.error('Error adding images:', error);
+    console.error("Error adding images:", error);
     return NextResponse.json(
-      { message: 'Failed to add images to product.' },
+      { message: "Failed to add images to product." },
       { status: 500 },
     );
   }
@@ -57,13 +67,19 @@ export async function POST(req, { params }) {
 // DELETE - Supprimer une image du produit
 export async function DELETE(req, { params }) {
   try {
+    // Vérifier l'authentification
+    await isAuthenticatedUser(req, NextResponse);
+
+    // Vérifier le role
+    authorizeRoles(NextResponse, "admin");
+
     const { id } = await params;
     const url = new URL(req.url);
-    const imageId = url.searchParams.get('imageId');
+    const imageId = url.searchParams.get("imageId");
 
     if (!imageId) {
       return NextResponse.json(
-        { message: 'Image ID is required.' },
+        { message: "Image ID is required." },
         { status: 400 },
       );
     }
@@ -74,7 +90,7 @@ export async function DELETE(req, { params }) {
 
     if (!product) {
       return NextResponse.json(
-        { message: 'Product not found.' },
+        { message: "Product not found." },
         { status: 404 },
       );
     }
@@ -86,7 +102,7 @@ export async function DELETE(req, { params }) {
 
     if (!imageToRemove) {
       return NextResponse.json(
-        { message: 'Image not found.' },
+        { message: "Image not found." },
         { status: 404 },
       );
     }
@@ -109,9 +125,9 @@ export async function DELETE(req, { params }) {
       { status: 200 },
     );
   } catch (error) {
-    console.error('Error removing image:', error);
+    console.error("Error removing image:", error);
     return NextResponse.json(
-      { message: 'Failed to remove image.' },
+      { message: "Failed to remove image." },
       { status: 500 },
     );
   }

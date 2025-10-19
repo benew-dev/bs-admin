@@ -1,9 +1,19 @@
-import dbConnect from '@/backend/config/dbConnect';
-import Category from '@/backend/models/category';
-import Product from '@/backend/models/product';
-import { NextResponse } from 'next/server';
+import dbConnect from "@/backend/config/dbConnect";
+import {
+  authorizeRoles,
+  isAuthenticatedUser,
+} from "@/backend/middlewares/auth";
+import Category from "@/backend/models/category";
+import Product from "@/backend/models/product";
+import { NextResponse } from "next/server";
 
 export async function DELETE(req, { params }) {
+  // Vérifier l'authentification
+  await isAuthenticatedUser(req, NextResponse);
+
+  // Vérifier le role
+  authorizeRoles(NextResponse, "admin");
+
   const { id } = params;
 
   await dbConnect();
@@ -12,7 +22,7 @@ export async function DELETE(req, { params }) {
 
   if (!deletingCategory) {
     return NextResponse.json(
-      { message: 'Category not found.' },
+      { message: "Category not found." },
       { status: 404 },
     );
   }
@@ -21,7 +31,7 @@ export async function DELETE(req, { params }) {
     return NextResponse.json(
       {
         message:
-          'You cannot delete an active category. Please deactivate it first.',
+          "You cannot delete an active category. Please deactivate it first.",
       },
       { status: 400 },
     );
@@ -35,7 +45,7 @@ export async function DELETE(req, { params }) {
     return NextResponse.json(
       {
         message:
-          'You cannot delete this category because there are products associated with it.',
+          "You cannot delete this category because there are products associated with it.",
       },
       { status: 400 },
     );
@@ -43,7 +53,7 @@ export async function DELETE(req, { params }) {
     await deletingCategory.deleteOne();
 
     return NextResponse.json(
-      { message: 'Category deleted successfully.' },
+      { message: "Category deleted successfully." },
       { status: 200 },
     );
   }

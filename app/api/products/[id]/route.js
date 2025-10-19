@@ -18,7 +18,7 @@ export async function GET(req, { params }) {
   await isAuthenticatedUser(req, NextResponse);
 
   // Vérifier le role
-  await authorizeRoles(NextResponse, "admin");
+  authorizeRoles(NextResponse, "admin");
 
   const { id } = await params;
 
@@ -66,7 +66,7 @@ export async function PUT(req, { params }) {
   await isAuthenticatedUser(req, NextResponse);
 
   // Vérifier le role
-  await authorizeRoles(NextResponse, "admin");
+  authorizeRoles(NextResponse, "admin");
 
   const { id } = await params;
   await dbConnect();
@@ -116,7 +116,7 @@ export async function DELETE(req, { params }) {
   await isAuthenticatedUser(req, NextResponse);
 
   // Vérifier le role
-  await authorizeRoles(NextResponse, "admin");
+  authorizeRoles(NextResponse, "admin");
 
   const { id } = await params;
   await dbConnect();
