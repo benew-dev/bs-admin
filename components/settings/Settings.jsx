@@ -3,6 +3,7 @@
 import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import { Banknote } from "lucide-react";
 import SettingsContext from "@/context/SettingsContext";
 
 const Settings = ({ dataCategory, dataPayment }) => {
@@ -43,6 +44,7 @@ const Settings = ({ dataCategory, dataPayment }) => {
     "D-MONEY": "from-purple-500 to-purple-600",
     "CAC-PAY": "from-green-500 to-green-600",
     "BCI-PAY": "from-orange-500 to-orange-600",
+    CASH: "from-gray-700 to-gray-900",
   };
 
   const setLoadingState = (type, id, isLoading) => {
@@ -93,6 +95,15 @@ const Settings = ({ dataCategory, dataPayment }) => {
     dataCategory?.categories?.filter((cat) => cat.isActive) || [];
   const inactiveCategories =
     dataCategory?.categories?.filter((cat) => !cat.isActive) || [];
+
+  // Séparer les moyens de paiement CASH et non-CASH
+  const cashPayment = dataPayment?.paymentTypes?.find(
+    (p) => p.platform === "CASH" || p.isCashPayment,
+  );
+  const electronicPayments =
+    dataPayment?.paymentTypes?.filter(
+      (p) => p.platform !== "CASH" && !p.isCashPayment,
+    ) || [];
 
   const renderCategoryCard = (category, index, isActive) => {
     const isDeleting = isLoading("deletingCategories", category._id);
@@ -203,6 +214,119 @@ const Settings = ({ dataCategory, dataPayment }) => {
               {isActive ? "✓ ACTIF" : "✗ INACTIF"}
             </div>
           </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderPaymentCard = (payment) => {
+    const isDeleting = isLoading("deletingPayments", payment._id);
+    const isCash = payment.platform === "CASH" || payment.isCashPayment;
+    const platformColor =
+      platformColors[payment.platform] || "from-emerald-500 to-green-600";
+
+    return (
+      <div
+        key={payment._id}
+        className={`relative group bg-gradient-to-br ${platformColor} rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all ${
+          isDeleting ? "opacity-50 scale-95" : "hover:scale-105"
+        }`}
+      >
+        {isDeleting && (
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center rounded-2xl">
+            <div className="flex flex-col items-center">
+              <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-white text-xs mt-2">Suppression...</span>
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={() => deletePaymentHandler(payment._id)}
+          disabled={isDeleting}
+          className={`absolute top-3 right-3 p-2 rounded-lg bg-red-500/80 backdrop-blur-sm hover:bg-red-600 transition-all ${
+            isDeleting ? "cursor-not-allowed" : ""
+          }`}
+          title="Supprimer"
+        >
+          {isDeleting ? (
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          ) : (
+            <svg
+              className="w-4 h-4 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          )}
+        </button>
+
+        <div className="text-white">
+          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4">
+            {isCash ? (
+              <Banknote className="w-6 h-6" />
+            ) : (
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                <path
+                  fillRule="evenodd"
+                  d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+          </div>
+
+          {/* Platform Badge */}
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="text-lg font-bold">{payment.platform}</h3>
+            <span className="px-2 py-1 bg-white/20 rounded-full text-xs">
+              ✓
+            </span>
+          </div>
+
+          {/* Content adapté selon le type */}
+          {isCash ? (
+            <div className="space-y-2">
+              <div className="mb-2">
+                <p className="text-white/70 text-xs uppercase mb-1">Type</p>
+                <p className="text-white font-semibold">Paiement en espèces</p>
+              </div>
+              <div className="bg-white/10 rounded-lg p-3">
+                <p className="text-white/90 text-xs">
+                  {payment.description ||
+                    "Paiement en espèces lors de la récupération"}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Account Holder Name */}
+              <div className="mb-2">
+                <p className="text-white/70 text-xs uppercase mb-1">
+                  Titulaire
+                </p>
+                <p className="text-white font-semibold">
+                  {payment.paymentName}
+                </p>
+              </div>
+
+              {/* Account Number */}
+              <div>
+                <p className="text-white/70 text-xs uppercase mb-1">Numéro</p>
+                <p className="text-white/90 font-mono text-sm">
+                  {payment.paymentNumber}
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     );
@@ -356,6 +480,7 @@ const Settings = ({ dataCategory, dataPayment }) => {
                     : ""}{" "}
                   configuré
                   {(dataPayment?.paymentTypes?.length || 0) !== 1 ? "s" : ""}
+                  {cashPayment && " • Espèces activées"}
                 </p>
               </div>
             </div>
@@ -380,108 +505,52 @@ const Settings = ({ dataCategory, dataPayment }) => {
             </Link>
           </div>
 
+          {/* Message informatif si CASH est activé */}
+          {cashPayment && (
+            <div className="mb-6 bg-green-50 border-l-4 border-green-500 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <Banknote className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-green-800 mb-1">
+                    Paiement en espèces activé
+                  </p>
+                  <p className="text-sm text-green-700">
+                    Les clients peuvent maintenant choisir de payer en espèces
+                    lors de la récupération de leur commande.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {dataPayment?.paymentTypes && dataPayment.paymentTypes.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {dataPayment.paymentTypes.map((payment) => {
-                const isDeleting = isLoading("deletingPayments", payment._id);
-                const platformColor =
-                  platformColors[payment.platform] ||
-                  "from-emerald-500 to-green-600";
-
-                return (
-                  <div
-                    key={payment._id}
-                    className={`relative group bg-gradient-to-br ${platformColor} rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all ${
-                      isDeleting ? "opacity-50 scale-95" : "hover:scale-105"
-                    }`}
-                  >
-                    {isDeleting && (
-                      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center rounded-2xl">
-                        <div className="flex flex-col items-center">
-                          <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span className="text-white text-xs mt-2">
-                            Suppression...
-                          </span>
-                        </div>
-                      </div>
+            <div className="space-y-6">
+              {/* Section des paiements électroniques */}
+              {electronicPayments.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-600 mb-4 uppercase tracking-wider">
+                    Paiements électroniques ({electronicPayments.length})
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {electronicPayments.map((payment) =>
+                      renderPaymentCard(payment),
                     )}
-
-                    <button
-                      onClick={() => deletePaymentHandler(payment._id)}
-                      disabled={isDeleting}
-                      className={`absolute top-3 right-3 p-2 rounded-lg bg-red-500/80 backdrop-blur-sm hover:bg-red-600 transition-all ${
-                        isDeleting ? "cursor-not-allowed" : ""
-                      }`}
-                      title="Supprimer"
-                    >
-                      {isDeleting ? (
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      ) : (
-                        <svg
-                          className="w-4 h-4 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      )}
-                    </button>
-
-                    <div className="text-white">
-                      <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4">
-                        <svg
-                          className="w-6 h-6"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
-                          <path
-                            fillRule="evenodd"
-                            d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-
-                      {/* Platform Badge */}
-                      <div className="flex items-center gap-2 mb-3">
-                        <h3 className="text-lg font-bold">
-                          {payment.platform}
-                        </h3>
-                        <span className="px-2 py-1 bg-white/20 rounded-full text-xs">
-                          ✓
-                        </span>
-                      </div>
-
-                      {/* Account Holder Name */}
-                      <div className="mb-2">
-                        <p className="text-white/70 text-xs uppercase mb-1">
-                          Titulaire
-                        </p>
-                        <p className="text-white font-semibold">
-                          {payment.paymentName}
-                        </p>
-                      </div>
-
-                      {/* Account Number */}
-                      <div>
-                        <p className="text-white/70 text-xs uppercase mb-1">
-                          Numéro
-                        </p>
-                        <p className="text-white/90 font-mono text-sm">
-                          {payment.paymentNumber}
-                        </p>
-                      </div>
-                    </div>
                   </div>
-                );
-              })}
+                </div>
+              )}
+
+              {/* Section paiement cash (séparée pour plus de visibilité) */}
+              {cashPayment && (
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-600 mb-4 uppercase tracking-wider flex items-center gap-2">
+                    <Banknote size={16} />
+                    Paiement en espèces
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {renderPaymentCard(cashPayment)}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-16 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300">
