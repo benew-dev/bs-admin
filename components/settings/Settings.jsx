@@ -38,6 +38,13 @@ const Settings = ({ dataCategory, dataPayment }) => {
     { bg: "from-indigo-500 to-indigo-600", ring: "ring-indigo-300" },
   ];
 
+  const platformColors = {
+    WAAFI: "from-blue-500 to-blue-600",
+    "D-MONEY": "from-purple-500 to-purple-600",
+    "CAC-PAY": "from-green-500 to-green-600",
+    "BCI-PAY": "from-orange-500 to-orange-600",
+  };
+
   const setLoadingState = (type, id, isLoading) => {
     setLoadingStates((prev) => {
       const newSet = new Set(prev[type]);
@@ -377,10 +384,14 @@ const Settings = ({ dataCategory, dataPayment }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {dataPayment.paymentTypes.map((payment) => {
                 const isDeleting = isLoading("deletingPayments", payment._id);
+                const platformColor =
+                  platformColors[payment.platform] ||
+                  "from-emerald-500 to-green-600";
+
                 return (
                   <div
                     key={payment._id}
-                    className={`relative group bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all ${
+                    className={`relative group bg-gradient-to-br ${platformColor} rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all ${
                       isDeleting ? "opacity-50 scale-95" : "hover:scale-105"
                     }`}
                   >
@@ -437,12 +448,36 @@ const Settings = ({ dataCategory, dataPayment }) => {
                           />
                         </svg>
                       </div>
-                      <h3 className="text-lg font-bold mb-2">
-                        {payment.paymentName}
-                      </h3>
-                      <p className="text-white/90 font-mono text-sm">
-                        {payment.paymentNumber}
-                      </p>
+
+                      {/* Platform Badge */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <h3 className="text-lg font-bold">
+                          {payment.platform}
+                        </h3>
+                        <span className="px-2 py-1 bg-white/20 rounded-full text-xs">
+                          ✓
+                        </span>
+                      </div>
+
+                      {/* Account Holder Name */}
+                      <div className="mb-2">
+                        <p className="text-white/70 text-xs uppercase mb-1">
+                          Titulaire
+                        </p>
+                        <p className="text-white font-semibold">
+                          {payment.paymentName}
+                        </p>
+                      </div>
+
+                      {/* Account Number */}
+                      <div>
+                        <p className="text-white/70 text-xs uppercase mb-1">
+                          Numéro
+                        </p>
+                        <p className="text-white/90 font-mono text-sm">
+                          {payment.paymentNumber}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 );

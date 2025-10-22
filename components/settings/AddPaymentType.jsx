@@ -1,18 +1,57 @@
 "use client";
 
 import SettingsContext from "@/context/SettingsContext";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { toast } from "react-toastify";
 
 const AddPaymentType = () => {
   const { newPaymentType, error, clearErrors } = useContext(SettingsContext);
-  const [platformName, setPlatformName] = useState("");
+  const [platform, setPlatform] = useState("");
+  const [accountHolderName, setAccountHolderName] = useState("");
   const [platformNumber, setPlatformNumber] = useState("");
+
+  const platforms = [
+    { value: "WAAFI", label: "WAAFI", color: "from-blue-500 to-blue-600" },
+    {
+      value: "D-MONEY",
+      label: "D-MONEY",
+      color: "from-purple-500 to-purple-600",
+    },
+    {
+      value: "CAC-PAY",
+      label: "CAC-PAY",
+      color: "from-green-500 to-green-600",
+    },
+    {
+      value: "BCI-PAY",
+      label: "BCI-PAY",
+      color: "from-orange-500 to-orange-600",
+    },
+  ];
 
   const submitHandler = (e) => {
     e.preventDefault();
-    newPaymentType(platformName, platformNumber); // ✅ Correct
+
+    if (!platform) {
+      toast.error("Veuillez sélectionner une plateforme");
+      return;
+    }
+
+    if (!accountHolderName.trim()) {
+      toast.error("Veuillez entrer le nom du titulaire");
+      return;
+    }
+
+    if (!platformNumber.trim()) {
+      toast.error("Veuillez entrer le numéro de compte");
+      return;
+    }
+
+    // Les paramètres doivent correspondre à la structure du modèle
+    newPaymentType(platform, accountHolderName, platformNumber);
   };
+
+  const selectedPlatform = platforms.find((p) => p.value === platform);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 py-8 px-4">
@@ -54,9 +93,52 @@ const AddPaymentType = () => {
           </div>
 
           <div className="p-8 space-y-6">
+            {/* Sélection de la plateforme */}
             <div className="group">
               <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Nom de la plateforme <span className="text-red-500">*</span>
+                Plateforme de paiement <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {platforms.map((plat) => (
+                  <button
+                    key={plat.value}
+                    type="button"
+                    onClick={() => setPlatform(plat.value)}
+                    className={`p-4 rounded-xl border-2 transition-all ${
+                      platform === plat.value
+                        ? `border-green-500 bg-gradient-to-br ${plat.color} text-white shadow-lg scale-105`
+                        : "border-slate-200 bg-white text-slate-700 hover:border-green-300 hover:shadow-md"
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      {platform === plat.value && (
+                        <svg
+                          className="w-5 h-5"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      )}
+                      <span className="font-bold">{plat.label}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-sm text-slate-500">
+                Sélectionnez la plateforme de paiement mobile
+              </p>
+            </div>
+
+            {/* Nom du titulaire */}
+            <div className="group">
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Nom du titulaire du compte{" "}
+                <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -70,23 +152,24 @@ const AddPaymentType = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                     />
                   </svg>
                 </div>
                 <input
                   type="text"
-                  value={platformName}
-                  onChange={(e) => setPlatformName(e.target.value)}
-                  placeholder="Ex: WAAFI, D-MONEY, CAC-PAY..."
+                  value={accountHolderName}
+                  onChange={(e) => setAccountHolderName(e.target.value)}
+                  placeholder="Ex: Mohamed Ahmed"
                   className="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all outline-none text-slate-700"
                 />
               </div>
               <p className="mt-2 text-sm text-slate-500">
-                Minimum 3 caractères
+                Nom de la personne à qui appartient le compte
               </p>
             </div>
 
+            {/* Numéro de compte */}
             <div className="group">
               <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Numéro de compte <span className="text-red-500">*</span>
@@ -116,7 +199,7 @@ const AddPaymentType = () => {
                 />
               </div>
               <p className="mt-2 text-sm text-slate-500">
-                Minimum 6 caractères
+                Numéro associé au compte {platform || "de la plateforme"}
               </p>
             </div>
 
@@ -139,17 +222,21 @@ const AddPaymentType = () => {
                   </p>
                   <p className="text-sm text-green-700">
                     Ce numéro sera utilisé pour recevoir les paiements des
-                    clients
+                    clients. Assurez-vous qu'il appartient bien à la personne
+                    indiquée.
                   </p>
                 </div>
               </div>
             </div>
 
+            {/* Aperçu */}
             <div className="bg-gradient-to-br from-slate-50 to-green-50 rounded-xl p-6 border-2 border-dashed border-slate-300">
               <p className="text-xs uppercase text-slate-500 font-semibold mb-3">
                 Aperçu
               </p>
-              <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-6 text-white">
+              <div
+                className={`bg-gradient-to-br ${selectedPlatform?.color || "from-green-500 to-emerald-600"} rounded-xl p-6 text-white`}
+              >
                 <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4">
                   <svg
                     className="w-6 h-6"
@@ -164,10 +251,22 @@ const AddPaymentType = () => {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-bold mb-2">
-                  {platformName || "Nom de la plateforme"}
-                </h3>
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="text-lg font-bold">
+                    {platform || "Plateforme"}
+                  </h3>
+                  {platform && (
+                    <span className="px-2 py-1 bg-white/20 rounded-full text-xs">
+                      ✓
+                    </span>
+                  )}
+                </div>
+                <p className="text-white/90 text-sm mb-2">
+                  <span className="text-white/70">Titulaire:</span>{" "}
+                  {accountHolderName || "Nom du titulaire"}
+                </p>
                 <p className="text-white/90 font-mono text-sm">
+                  <span className="text-white/70">Numéro:</span>{" "}
                   {platformNumber || "Numéro de compte"}
                 </p>
               </div>
@@ -176,7 +275,12 @@ const AddPaymentType = () => {
             <div className="flex gap-4 pt-4">
               <button
                 onClick={submitHandler}
-                className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                disabled={
+                  !platform ||
+                  !accountHolderName.trim() ||
+                  !platformNumber.trim()
+                }
+                className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 <svg
                   className="w-5 h-5"
@@ -193,7 +297,11 @@ const AddPaymentType = () => {
                 </svg>
                 Ajouter
               </button>
-              <button className="px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-all">
+              <button
+                type="button"
+                onClick={() => window.history.back()}
+                className="px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-all"
+              >
                 Annuler
               </button>
             </div>

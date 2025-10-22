@@ -14,13 +14,22 @@ export const SettingsProvider = ({ children }) => {
 
   const router = useRouter();
 
-  const newPaymentType = async (platformName, platformNumber) => {
+  const newPaymentType = async (
+    platform,
+    accountHolderName,
+    platformNumber,
+  ) => {
     try {
       setLoading(true);
 
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/settings/paymentType`,
-        { paymentName: platformName, paymentNumber: platformNumber },
+        {
+          platform: platform, // Nouveau: enum WAAFI, D-MONEY, CAC-PAY, BCI-PAY
+          paymentName: accountHolderName, // Modifié: maintenant c'est le nom du titulaire
+          paymentNumber: platformNumber, // Inchangé: le numéro de compte
+        },
+        { headers: { "Content-Type": "application/json" } },
       );
 
       if (data) {
