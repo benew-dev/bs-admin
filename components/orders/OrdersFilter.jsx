@@ -25,8 +25,10 @@ const OrdersFilter = ({ open, setLoading }) => {
     });
 
     if (checkbox.checked === false) {
+      // Delete the filter from query
       queryParams.delete(checkbox.name);
     } else {
+      // Set filter in the query
       if (queryParams.has(checkbox.name)) {
         queryParams.set(checkbox.name, checkbox.value);
       } else {
@@ -41,7 +43,7 @@ const OrdersFilter = ({ open, setLoading }) => {
     <div
       className={`${open ? "block" : "hidden"} bg-white rounded-lg shadow-md border border-gray-200 p-6`}
     >
-      {/* Header du filtre */}
+      {/* Header du filtre avec design amélioré */}
       <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200">
         <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
           <i className="fa fa-filter text-blue-600"></i>
@@ -99,24 +101,6 @@ const OrdersFilter = ({ open, setLoading }) => {
               </span>
             </label>
 
-            {/* Pending Cash - NOUVEAU */}
-            <label className="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-200 group">
-              <input
-                name="paymentStatus"
-                type="checkbox"
-                value="pending_cash"
-                className="h-4 w-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500 focus:ring-2"
-                defaultChecked={paymentFilter === "pending_cash"}
-                onClick={(e) => handleClick(e.target)}
-              />
-              <span className="ml-3 flex items-center gap-2">
-                <i className="fa fa-money-bill-wave text-yellow-600 text-sm"></i>
-                <span className="text-sm font-medium text-gray-700 group-hover:text-yellow-700">
-                  En attente (Espèces)
-                </span>
-              </span>
-            </label>
-
             {/* Refunded */}
             <label className="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-all duration-200 group">
               <input
@@ -135,7 +119,7 @@ const OrdersFilter = ({ open, setLoading }) => {
               </span>
             </label>
 
-            {/* Cancelled */}
+            {/* Failed */}
             <label className="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 group">
               <input
                 name="paymentStatus"
@@ -146,16 +130,16 @@ const OrdersFilter = ({ open, setLoading }) => {
                 onClick={(e) => handleClick(e.target)}
               />
               <span className="ml-3 flex items-center gap-2">
-                <i className="fa fa-ban text-gray-600 text-sm"></i>
+                <i className="fa fa-exclamation-triangle text-gray-600 text-sm"></i>
                 <span className="text-sm font-medium text-gray-700 group-hover:text-gray-700">
-                  Annulées
+                  Échouées
                 </span>
               </span>
             </label>
           </div>
         </div>
 
-        {/* Note informative avec info sur CASH */}
+        {/* Note informative */}
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-start gap-3">
             <i className="fa fa-info-circle text-blue-600 text-lg mt-0.5"></i>
@@ -163,13 +147,9 @@ const OrdersFilter = ({ open, setLoading }) => {
               <p className="text-sm font-medium text-blue-800 mb-1">
                 Information
               </p>
-              <p className="text-xs text-blue-700 leading-relaxed mb-2">
+              <p className="text-xs text-blue-700 leading-relaxed">
                 Sélectionnez un filtre pour afficher uniquement les commandes
                 correspondantes. Un seul filtre peut être actif à la fois.
-              </p>
-              <p className="text-xs text-blue-700 leading-relaxed">
-                <strong>💰 Pending Cash :</strong> Commandes avec paiement en
-                espèces en attente de confirmation.
               </p>
             </div>
           </div>

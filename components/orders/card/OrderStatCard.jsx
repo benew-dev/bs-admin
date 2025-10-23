@@ -4,7 +4,7 @@
 import React from "react";
 
 const OrderStatCard = ({ title, content, indication, color }) => {
-  // Définir les couleurs selon le type (avec support pour yellow)
+  // Définir les couleurs selon le type
   const getColorClasses = (colorType) => {
     switch (colorType) {
       case "green":
@@ -41,20 +41,6 @@ const OrderStatCard = ({ title, content, indication, color }) => {
           badge: "bg-white",
           badgeText: "text-orange-600",
           border: "border-orange-300",
-        };
-      case "yellow":
-        return {
-          bg: "bg-yellow-100 hover:bg-yellow-200",
-          badge: "bg-white",
-          badgeText: "text-yellow-600",
-          border: "border-yellow-300",
-        };
-      case "red":
-        return {
-          bg: "bg-red-100 hover:bg-red-200",
-          badge: "bg-white",
-          badgeText: "text-red-600",
-          border: "border-red-300",
         };
       default:
         return {
