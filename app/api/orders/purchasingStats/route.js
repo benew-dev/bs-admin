@@ -152,16 +152,6 @@ export async function GET(req) {
         .lean(),
     ]);
 
-    // Calculer itemCount pour chaque commande
-    const addItemCount = (orders) =>
-      orders.map((order) => ({
-        ...order,
-        itemCount: order.orderItems.reduce(
-          (total, item) => total + item.quantity,
-          0,
-        ),
-      }));
-
     return NextResponse.json(
       {
         // Stats globales
@@ -179,11 +169,9 @@ export async function GET(req) {
         totalOrdersRefundedThisMonth,
 
         // Listes détaillées
-        listOrdersPaidThisMonth: addItemCount(listOrdersPaidThisMonth),
-        listOrdersUnpaidThisMonth: addItemCount(listOrdersUnpaidThisMonth),
-        listOrdersPendingCashThisMonth: addItemCount(
-          listOrdersPendingCashThisMonth,
-        ),
+        listOrdersPaidThisMonth, //: addItemCount(listOrdersPaidThisMonth),
+        listOrdersUnpaidThisMonth, //: addItemCount(listOrdersUnpaidThisMonth),
+        listOrdersPendingCashThisMonth, //: addItemCount(listOrdersPendingCashThisMonth,),
       },
       { status: 200 },
     );
@@ -195,3 +183,13 @@ export async function GET(req) {
     );
   }
 }
+
+// Calculer itemCount pour chaque commande
+// const addItemCount = (orders) =>
+//   orders.map((order) => ({
+//     ...order,
+//     itemCount: order.orderItems.reduce(
+//       (total, item) => total + item.quantity,
+//       0,
+//     ),
+//   }));
