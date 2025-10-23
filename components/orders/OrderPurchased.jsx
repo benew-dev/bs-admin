@@ -20,6 +20,13 @@ const OrdersUnpaidList = dynamic(() => import("./table/OrdersUnpaidList"), {
   loading: () => <Loading />,
 });
 
+const OrdersPendingCashList = dynamic(
+  () => import("./table/OrdersPendingCashList"),
+  {
+    loading: () => <Loading />,
+  },
+);
+
 import { arrayHasData } from "@/helpers/helpers";
 
 const OrderPurchased = ({ data }) => {
@@ -40,6 +47,15 @@ const OrderPurchased = ({ data }) => {
         0,
       );
 
+  const totalAmountPendingCash = arrayHasData(
+    data?.listOrdersPendingCashThisMonth,
+  )
+    ? 0
+    : data?.listOrdersPendingCashThisMonth?.reduce(
+        (acc, currentValue) => acc + (currentValue?.totalAmount || 0),
+        0,
+      );
+
   // Calcul du nombre total d'articles
   const totalItemsUnpaid = arrayHasData(data?.listOrdersUnpaidThisMonth)
     ? 0
@@ -51,6 +67,15 @@ const OrderPurchased = ({ data }) => {
   const totalItemsPaid = arrayHasData(data?.listOrdersPaidThisMonth)
     ? 0
     : data?.listOrdersPaidThisMonth?.reduce(
+        (acc, currentValue) => acc + (currentValue?.itemCount || 0),
+        0,
+      );
+
+  const totalItemsPendingCash = arrayHasData(
+    data?.listOrdersPendingCashThisMonth,
+  )
+    ? 0
+    : data?.listOrdersPendingCashThisMonth?.reduce(
         (acc, currentValue) => acc + (currentValue?.itemCount || 0),
         0,
       );
@@ -73,6 +98,7 @@ const OrderPurchased = ({ data }) => {
 
       <hr className="my-2 mx-9" />
 
+      {/* Liste des commandes payées */}
       <div className="flex justify-between items-center">
         <h1 className="text-lg ml-4 font-bold text-green-600">
           List of Orders Paid This Month
@@ -92,6 +118,29 @@ const OrderPurchased = ({ data }) => {
 
       <hr className="my-2 mx-9" />
 
+      {/* Liste des commandes en attente d'espèces - NOUVEAU */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-lg ml-4 font-bold text-yellow-600">
+          List of Orders Pending Cash This Month
+        </h1>
+        <div className="mr-4 text-sm">
+          <p className="font-semibold text-yellow-600">
+            Total Amount: ${totalAmountPendingCash.toFixed(2)}
+          </p>
+          <p className="text-gray-600">
+            Total Items: {totalItemsPendingCash} • Orders:{" "}
+            {data?.listOrdersPendingCashThisMonth?.length || 0}
+          </p>
+        </div>
+      </div>
+
+      <OrdersPendingCashList
+        listOrdersPendingCashThisMonth={data?.listOrdersPendingCashThisMonth}
+      />
+
+      <hr className="my-2 mx-9" />
+
+      {/* Liste des commandes non payées */}
       <div className="flex justify-between items-center">
         <h1 className="text-lg ml-4 font-bold text-red-500">
           List of Orders Unpaid This Month

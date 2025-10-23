@@ -4,7 +4,6 @@ import { captureException } from "@/monitoring/sentry";
 
 /**
  * Schéma détaillé pour les produits dans une commande
- * Stocke toutes les informations nécessaires pour référence historique
  */
 const orderItemSchema = new mongoose.Schema({
   product: {
@@ -112,7 +111,6 @@ const paymentInfoSchema = new mongoose.Schema({
 
 /**
  * Schéma utilisateur détenu dans la commande
- * Stocke les informations de l'utilisateur au moment de la commande
  */
 const orderUserSchema = new mongoose.Schema({
   userId: {
@@ -175,7 +173,7 @@ const orderUserSchema = new mongoose.Schema({
 });
 
 /**
- * Schéma de commande complet avec validation, indexation et relations
+ * Schéma de commande complet avec support CASH
  */
 const orderSchema = new mongoose.Schema(
   {
@@ -192,16 +190,14 @@ const orderSchema = new mongoose.Schema(
       enum: {
         values: [
           "unpaid",
-          "processing",
+          "pending_cash", // Pour les paiements en espèces en attente
           "paid",
           "refunded",
-          "failed",
-          "pending_cash",
+          "cancelled",
         ],
         message: "Statut de paiement non valide: {VALUE}",
       },
       default: function () {
-        // Si c'est un paiement CASH, statut par défaut est pending_cash
         return this.paymentInfo?.typePayment === "CASH"
           ? "pending_cash"
           : "unpaid";
@@ -262,6 +258,7 @@ const orderSchema = new mongoose.Schema(
 orderSchema.index({ "user.userId": 1, createdAt: -1 });
 orderSchema.index({ paymentStatus: 1, createdAt: -1 });
 orderSchema.index({ createdAt: -1 });
+orderSchema.index({ "paymentInfo.typePayment": 1 });
 
 // Créer un identifiant unique au format ORD-YYYYMMDD-XXXXX
 orderSchema.pre("save", async function (next) {
@@ -348,7 +345,6 @@ orderSchema.post("save", async function () {
           update: {
             $inc: {
               stock: -item.quantity,
-              sold: item.quantity,
             },
           },
         },

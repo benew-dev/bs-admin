@@ -22,6 +22,8 @@ const SingleOrderInfo = ({ order }) => {
         return "text-green-500";
       case "unpaid":
         return "text-red-500";
+      case "pending_cash":
+        return "text-yellow-500";
       case "refunded":
         return "text-orange-500";
       case "cancelled":
@@ -31,6 +33,19 @@ const SingleOrderInfo = ({ order }) => {
     }
   };
 
+  // Fonction pour afficher le libellé du statut
+  const getPaymentStatusLabel = (status) => {
+    switch (status) {
+      case "pending_cash":
+        return "PENDING CASH";
+      default:
+        return status?.toUpperCase();
+    }
+  };
+
+  // Vérifier si c'est un paiement en espèces
+  const isCashPayment = order?.paymentInfo?.typePayment === "CASH";
+
   return (
     <>
       <header className="lg:flex justify-between mb-4">
@@ -38,8 +53,13 @@ const SingleOrderInfo = ({ order }) => {
           <p className="font-semibold">
             <span>Order Number: {order?.orderNumber || order?._id} </span>
             <span className={getPaymentStatusColor(order?.paymentStatus)}>
-              • {order?.paymentStatus?.toUpperCase()}
+              • {getPaymentStatusLabel(order?.paymentStatus)}
             </span>
+            {isCashPayment && order?.paymentStatus === "pending_cash" && (
+              <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-300">
+                💰 Cash Payment
+              </span>
+            )}
           </p>
           <p className="text-gray-500">
             Created: {formatDate(order?.createdAt)}
@@ -100,15 +120,20 @@ const SingleOrderInfo = ({ order }) => {
             <li>
               <span className="font-bold">Mode:</span>{" "}
               {order?.paymentInfo?.typePayment}
+              {isCashPayment && (
+                <span className="ml-2 text-yellow-600">💰</span>
+              )}
             </li>
             <li>
               <span className="font-bold">Sender:</span>{" "}
               {order?.paymentInfo?.paymentAccountName}
             </li>
-            <li>
-              <span className="font-bold">Number:</span>{" "}
-              {order?.paymentInfo?.paymentAccountNumber}
-            </li>
+            {!isCashPayment && (
+              <li>
+                <span className="font-bold">Number:</span>{" "}
+                {order?.paymentInfo?.paymentAccountNumber}
+              </li>
+            )}
             <li>
               <span className="font-bold">Payment Date:</span>{" "}
               {formatDate(order?.paymentInfo?.paymentDate)}
@@ -116,6 +141,24 @@ const SingleOrderInfo = ({ order }) => {
           </ul>
         </div>
       </div>
+
+      {/* Note spécifique pour les paiements en espèces */}
+      {isCashPayment && order?.paymentStatus === "pending_cash" && (
+        <div className="mb-6 p-4 bg-yellow-50 rounded-lg border-2 border-yellow-200">
+          <p className="text-yellow-800 font-semibold flex items-center gap-2 mb-2">
+            <i className="fa fa-hand-holding-usd text-lg"></i>
+            Cash Payment Pending
+          </p>
+          <p className="text-sm text-yellow-700">
+            {order?.paymentInfo?.cashPaymentNote ||
+              "Le paiement sera effectué en espèces à la livraison"}
+          </p>
+          <p className="text-xs text-yellow-600 mt-2">
+            <i className="fa fa-info-circle mr-1"></i>
+            Once you receive the cash, update the order status to "paid".
+          </p>
+        </div>
+      )}
 
       {/* Section Historique des dates */}
       {(order?.paidAt || order?.cancelledAt) && (
@@ -137,6 +180,12 @@ const SingleOrderInfo = ({ order }) => {
                 <p className="text-sm text-gray-600">
                   {formatDate(order?.paidAt)}
                 </p>
+                {isCashPayment && (
+                  <p className="text-xs text-green-600 mt-1">
+                    <i className="fa fa-money-bill-wave mr-1"></i>
+                    Cash received
+                  </p>
+                )}
               </div>
             )}
             {order?.cancelledAt && (
@@ -162,7 +211,7 @@ const SingleOrderInfo = ({ order }) => {
 
       <hr className="my-4" />
 
-      {/* Section des produits avec plus de détails */}
+      {/* Section des produits */}
       <div>
         <p className="text-gray-700 mb-3 font-semibold flex items-center gap-2">
           <i className="fa fa-shopping-bag text-blue-600"></i>
@@ -208,7 +257,13 @@ const SingleOrderInfo = ({ order }) => {
       </div>
 
       {/* Section récapitulatif final */}
-      <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-200 rounded-lg">
+      <div
+        className={`mt-6 p-4 rounded-lg border-2 ${
+          isCashPayment && order?.paymentStatus === "pending_cash"
+            ? "bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200"
+            : "bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200"
+        }`}
+      >
         <div className="flex justify-between items-center">
           <div>
             <p className="text-xs text-gray-600 mb-1">Order ID</p>
@@ -220,13 +275,24 @@ const SingleOrderInfo = ({ order }) => {
               <span
                 className={`font-semibold ${getPaymentStatusColor(order?.paymentStatus)}`}
               >
-                {order?.paymentStatus?.toUpperCase()}
+                {getPaymentStatusLabel(order?.paymentStatus)}
               </span>
             </p>
+            {isCashPayment && (
+              <p className="text-xs text-yellow-600 mt-1 font-medium">
+                💰 Cash Payment
+              </p>
+            )}
           </div>
           <div className="text-right">
             <p className="text-xs text-gray-600 mb-1">Total Amount</p>
-            <p className="text-2xl font-bold text-blue-600">
+            <p
+              className={`text-2xl font-bold ${
+                isCashPayment && order?.paymentStatus === "pending_cash"
+                  ? "text-yellow-600"
+                  : "text-blue-600"
+              }`}
+            >
               ${order?.totalAmount?.toFixed(2)}
             </p>
             <p className="text-xs text-gray-600 mt-1">

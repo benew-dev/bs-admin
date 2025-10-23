@@ -7,13 +7,8 @@ import Order from "@/backend/models/order";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
-  // Vérifier l'authentification
   await isAuthenticatedUser(req, NextResponse);
-
-  // Vérifier le role
   authorizeRoles(NextResponse, "admin");
-
-  // Connexion DB
   await dbConnect();
 
   try {
@@ -31,23 +26,26 @@ export async function GET(req) {
       999,
     );
 
-    // Stats globales pour tous les statuts de paiement (depuis le début)
+    // Stats globales avec support CASH
     const [
       ordersPaidCount,
       ordersUnpaidCount,
+      ordersPendingCashCount,
       ordersCancelledCount,
       ordersRefundedCount,
     ] = await Promise.all([
       Order.countDocuments({ paymentStatus: "paid" }),
       Order.countDocuments({ paymentStatus: "unpaid" }),
+      Order.countDocuments({ paymentStatus: "pending_cash" }),
       Order.countDocuments({ paymentStatus: "cancelled" }),
       Order.countDocuments({ paymentStatus: "refunded" }),
     ]);
 
-    // Statistiques pour le mois en cours par statut
+    // Statistiques mensuelles par statut
     const [
       totalOrdersPaidThisMonth,
       totalOrdersUnpaidThisMonth,
+      totalOrdersPendingCashThisMonth,
       totalOrdersCancelledThisMonth,
       totalOrdersRefundedThisMonth,
     ] = await Promise.all([
@@ -84,6 +82,21 @@ export async function GET(req) {
       Order.aggregate([
         {
           $match: {
+            paymentStatus: "pending_cash",
+            createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalOrdersPendingCash: { $sum: 1 },
+            potentialRevenue: { $sum: "$totalAmount" },
+          },
+        },
+      ]),
+      Order.aggregate([
+        {
+          $match: {
             paymentStatus: "cancelled",
             createdAt: { $gte: startOfMonth, $lte: endOfMonth },
           },
@@ -113,30 +126,33 @@ export async function GET(req) {
       ]),
     ]);
 
-    // Listes détaillées des commandes du mois en cours
-    const [listOrdersPaidThisMonth, listOrdersUnpaidThisMonth] =
-      await Promise.all([
-        Order.find({
-          paymentStatus: "paid",
-          createdAt: { $gte: startOfMonth, $lte: endOfMonth },
-        })
-          .select(
-            "orderNumber totalAmount orderItems paymentInfo paymentStatus createdAt paidAt updatedAt",
-          )
-          .sort({ paidAt: -1 })
-          .lean(),
-        Order.find({
-          paymentStatus: "unpaid",
-          createdAt: { $gte: startOfMonth, $lte: endOfMonth },
-        })
-          .select(
-            "orderNumber totalAmount orderItems paymentInfo paymentStatus createdAt updatedAt",
-          )
-          .sort({ createdAt: -1 })
-          .lean(),
-      ]);
+    // Listes détaillées des commandes du mois
+    const [
+      listOrdersPaidThisMonth,
+      listOrdersUnpaidThisMonth,
+      listOrdersPendingCashThisMonth,
+    ] = await Promise.all([
+      Order.find({
+        paymentStatus: "unpaid",
+        createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+      })
+        .select(
+          "orderNumber totalAmount orderItems paymentInfo paymentStatus createdAt updatedAt",
+        )
+        .sort({ createdAt: -1 })
+        .lean(),
+      Order.find({
+        paymentStatus: "pending_cash",
+        createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+      })
+        .select(
+          "orderNumber totalAmount orderItems paymentInfo paymentStatus createdAt updatedAt",
+        )
+        .sort({ createdAt: -1 })
+        .lean(),
+    ]);
 
-    // Calculer itemCount pour chaque commande (puisque c'est un virtual)
+    // Calculer itemCount pour chaque commande
     const addItemCount = (orders) =>
       orders.map((order) => ({
         ...order,
@@ -148,21 +164,26 @@ export async function GET(req) {
 
     return NextResponse.json(
       {
-        // Stats globales (tous les statuts de paiement)
+        // Stats globales
         ordersPaidCount,
         ordersUnpaidCount,
+        ordersPendingCashCount,
         ordersCancelledCount,
         ordersRefundedCount,
 
-        // Stats mensuelles (tous les statuts)
+        // Stats mensuelles
         totalOrdersPaidThisMonth,
         totalOrdersUnpaidThisMonth,
+        totalOrdersPendingCashThisMonth,
         totalOrdersCancelledThisMonth,
         totalOrdersRefundedThisMonth,
 
-        // Listes détaillées avec itemCount
+        // Listes détaillées
         listOrdersPaidThisMonth: addItemCount(listOrdersPaidThisMonth),
         listOrdersUnpaidThisMonth: addItemCount(listOrdersUnpaidThisMonth),
+        listOrdersPendingCashThisMonth: addItemCount(
+          listOrdersPendingCashThisMonth,
+        ),
       },
       { status: 200 },
     );

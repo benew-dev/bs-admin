@@ -20,6 +20,12 @@ const OrderPurchasedStats = ({ open, data }) => {
       color: "orange",
     },
     {
+      title: "Pending Cash",
+      content: `${data?.ordersPendingCashCount === undefined ? "0 order" : `${data?.ordersPendingCashCount} order(s)`}`,
+      indication: "Since the beginning",
+      color: "yellow",
+    },
+    {
       title: "Orders Cancelled",
       content: `${data?.ordersCancelledCount === undefined ? "0 order" : `${data?.ordersCancelledCount} order(s)`}`,
       indication: "Since the beginning",
@@ -42,6 +48,12 @@ const OrderPurchasedStats = ({ open, data }) => {
       content: `${data?.totalOrdersUnpaidThisMonth?.[0] === undefined ? "0 order" : `${data?.totalOrdersUnpaidThisMonth[0]?.totalOrdersUnpaid} order(s)`}`,
       indication: `${currentMonth}/${currentYear}`,
       color: "orange",
+    },
+    {
+      title: "Pending Cash This Month",
+      content: `${data?.totalOrdersPendingCashThisMonth?.[0] === undefined ? "0 order" : `${data?.totalOrdersPendingCashThisMonth[0]?.totalOrdersPendingCash} order(s)`}`,
+      indication: `${currentMonth}/${currentYear}`,
+      color: "yellow",
     },
     {
       title: "Cancelled This Month",

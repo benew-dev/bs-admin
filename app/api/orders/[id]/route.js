@@ -10,14 +10,10 @@ import {
 } from "@/backend/middlewares/auth";
 
 export async function GET(req, { params }) {
-  // Vérifier l'authentification
   await isAuthenticatedUser(req, NextResponse);
-
-  // Vérifier le role
   authorizeRoles(NextResponse, "admin");
 
   const { id } = params;
-
   await dbConnect();
 
   const order = await Order.findById(id).populate("user", "name phone email");
@@ -30,10 +26,7 @@ export async function GET(req, { params }) {
 }
 
 export async function PUT(req, { params }) {
-  // Vérifier l'authentification
   await isAuthenticatedUser(req, NextResponse);
-
-  // Vérifier le role
   authorizeRoles(NextResponse, "admin");
 
   const { id } = params;
@@ -47,20 +40,19 @@ export async function PUT(req, { params }) {
     return NextResponse.json({ message: "No Order found" }, { status: 404 });
   }
 
-  // Gestion de la mise à jour du statut de paiement
   if (body.paymentStatus) {
     const currentStatus = order.paymentStatus;
     const newStatus = body.paymentStatus;
 
-    // Définir les transitions autorisées
+    // Définir les transitions autorisées avec support CASH
     const allowedTransitions = {
       unpaid: ["paid", "cancelled"],
+      pending_cash: ["paid", "cancelled"], // CASH peut passer à payé ou annulé
       paid: ["refunded"],
-      refunded: [], // Aucune transition autorisée
-      cancelled: [], // Aucune transition autorisée
+      refunded: [],
+      cancelled: [],
     };
 
-    // Vérifier si la transition est autorisée
     if (!allowedTransitions[currentStatus]?.includes(newStatus)) {
       return NextResponse.json(
         {
@@ -71,17 +63,19 @@ export async function PUT(req, { params }) {
       );
     }
 
-    // Gestion des mises à jour de stock et sold selon le changement de statut
     try {
-      // Si on passe de 'unpaid' ou 'processing' à 'paid' : ajouter aux ventes
-      if (currentStatus === "unpaid" && newStatus === "paid") {
-        // Récupérer les produits avec leurs catégories
+      // Gestion des transitions de statut
+
+      // 1. Passage à "paid" (depuis unpaid ou pending_cash)
+      if (
+        (currentStatus === "unpaid" || currentStatus === "pending_cash") &&
+        newStatus === "paid"
+      ) {
         const productIds = order.orderItems.map((item) => item.product);
         const products = await Product.find({
           _id: { $in: productIds },
         }).populate("category");
 
-        // Créer un map pour associer categoryId -> quantity
         const categoryUpdates = new Map();
 
         order.orderItems.forEach((item) => {
@@ -113,7 +107,7 @@ export async function PUT(req, { params }) {
           },
         }));
 
-        // Mise à jour des catégories (incrémenter sold)
+        // Mise à jour des catégories
         const bulkOpsForCategories = Array.from(categoryUpdates.entries()).map(
           ([categoryId, quantity]) => ({
             updateOne: {
@@ -127,7 +121,6 @@ export async function PUT(req, { params }) {
           }),
         );
 
-        // Exécuter les mises à jour en parallèle
         const promises = [];
         if (bulkOpsForPaid.length > 0) {
           promises.push(Product.bulkWrite(bulkOpsForPaid));
@@ -137,20 +130,16 @@ export async function PUT(req, { params }) {
         }
 
         await Promise.all(promises);
-
-        // Mettre à jour paidAt
         order.paidAt = Date.now();
       }
 
-      // Si on passe de 'paid' à 'refunded' : annuler les ventes et restaurer le stock
+      // 2. Passage à "refunded"
       else if (currentStatus === "paid" && newStatus === "refunded") {
-        // Récupérer les produits avec leurs catégories
         const productIds = order.orderItems.map((item) => item.product);
         const products = await Product.find({
           _id: { $in: productIds },
         }).populate("category");
 
-        // Créer un map pour associer categoryId -> quantity
         const categoryUpdates = new Map();
 
         order.orderItems.forEach((item) => {
@@ -170,20 +159,19 @@ export async function PUT(req, { params }) {
           }
         });
 
-        // Mise à jour des produits (décrémenter sold, incrémenter stock)
+        // Restaurer le stock et décrémenter sold
         const bulkOpsForRefunded = order.orderItems.map((item) => ({
           updateOne: {
             filter: { _id: item.product },
             update: {
               $inc: {
                 sold: -item.quantity,
-                stock: item.quantity, // Restaurer le stock
+                stock: item.quantity,
               },
             },
           },
         }));
 
-        // Mise à jour des catégories (décrémenter sold)
         const bulkOpsForCategories = Array.from(categoryUpdates.entries()).map(
           ([categoryId, quantity]) => ({
             updateOne: {
@@ -197,7 +185,6 @@ export async function PUT(req, { params }) {
           }),
         );
 
-        // Exécuter les mises à jour en parallèle
         const promises = [];
         if (bulkOpsForRefunded.length > 0) {
           promises.push(Product.bulkWrite(bulkOpsForRefunded));
@@ -207,18 +194,32 @@ export async function PUT(req, { params }) {
         }
 
         await Promise.all(promises);
-      }
-
-      // Si on passe à 'failed' : marquer comme annulée
-      else if (newStatus === "cancelled") {
         order.cancelledAt = Date.now();
         if (body.cancelReason) {
           order.cancelReason = body.cancelReason;
         }
       }
 
-      // Si on passe à 'refunded' : marquer comme annulée avec raison
-      else if (newStatus === "refunded") {
+      // 3. Passage à "cancelled"
+      else if (newStatus === "cancelled") {
+        // Si on annule depuis pending_cash ou unpaid, on restaure le stock
+        if (currentStatus === "pending_cash" || currentStatus === "unpaid") {
+          const bulkOpsForCancelled = order.orderItems.map((item) => ({
+            updateOne: {
+              filter: { _id: item.product },
+              update: {
+                $inc: {
+                  stock: item.quantity, // Restaurer le stock
+                },
+              },
+            },
+          }));
+
+          if (bulkOpsForCancelled.length > 0) {
+            await Product.bulkWrite(bulkOpsForCancelled);
+          }
+        }
+
         order.cancelledAt = Date.now();
         if (body.cancelReason) {
           order.cancelReason = body.cancelReason;
@@ -237,18 +238,13 @@ export async function PUT(req, { params }) {
       );
     }
 
-    // Effectuer la mise à jour du paymentStatus
     order.paymentStatus = newStatus;
 
-    // Ajouter cancelReason si fourni
     if (body.cancelReason) {
       order.cancelReason = body.cancelReason;
     }
 
-    // Sauvegarder les modifications
     await order.save();
-
-    // Récupérer l'ordre mis à jour
     order = await Order.findById(id);
   }
 
