@@ -73,10 +73,6 @@ const paymentInfoSchema = new mongoose.Schema({
     default: function () {
       return this.typePayment === "CASH" ? "CASH" : undefined;
     },
-    get: function (val) {
-      if (!val || val === "CASH") return val;
-      return val.length > 4 ? "••••••" + val.slice(-4) : val;
-    },
   },
   paymentAccountName: {
     type: String,
@@ -188,20 +184,10 @@ const orderSchema = new mongoose.Schema(
     paymentStatus: {
       type: String,
       enum: {
-        values: [
-          "unpaid",
-          "pending_cash", // Pour les paiements en espèces en attente
-          "paid",
-          "refunded",
-          "cancelled",
-        ],
+        values: ["unpaid", "paid", "refunded", "cancelled"],
         message: "Statut de paiement non valide: {VALUE}",
       },
-      default: function () {
-        return this.paymentInfo?.typePayment === "CASH"
-          ? "pending_cash"
-          : "unpaid";
-      },
+      default: "unpaid",
       index: true,
     },
     totalAmount: {
