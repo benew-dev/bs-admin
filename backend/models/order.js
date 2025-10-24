@@ -106,69 +106,6 @@ const paymentInfoSchema = new mongoose.Schema({
 });
 
 /**
- * Schéma utilisateur détenu dans la commande
- */
-const orderUserSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    index: true,
-    default: null,
-  },
-  name: {
-    type: String,
-    required: [true, "Nom du client obligatoire"],
-    trim: true,
-    maxlength: [100, "Le nom ne peut pas dépasser 100 caractères"],
-  },
-  email: {
-    type: String,
-    required: [true, "Email du client obligatoire"],
-    trim: true,
-    lowercase: true,
-    maxlength: [100, "L'email ne peut pas dépasser 100 caractères"],
-  },
-  phone: {
-    type: String,
-    required: [true, "Numéro de téléphone obligatoire"],
-    trim: true,
-  },
-  avatar: {
-    type: String,
-    default: null,
-    validate: {
-      validator: function (v) {
-        if (!v) return true;
-        return /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(
-          v,
-        );
-      },
-      message: "Format d'URL d'avatar invalide",
-    },
-  },
-  address: {
-    street: {
-      type: String,
-      default: null,
-      trim: true,
-      maxlength: [100, "L'adresse ne peut pas dépasser 100 caractères"],
-    },
-    city: {
-      type: String,
-      default: null,
-      trim: true,
-      maxlength: [50, "Le nom de la ville ne peut pas dépasser 50 caractères"],
-    },
-    country: {
-      type: String,
-      default: null,
-      trim: true,
-      maxlength: [50, "Le nom du pays ne peut pas dépasser 50 caractères"],
-    },
-  },
-});
-
-/**
  * Schéma de commande complet avec support CASH
  */
 const orderSchema = new mongoose.Schema(
@@ -178,7 +115,12 @@ const orderSchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
-    user: orderUserSchema,
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: [true, "ID de l'utilisateur obligatoire"],
+      ref: "User",
+      index: true,
+    },
     orderItems: [orderItemSchema],
     paymentInfo: paymentInfoSchema,
     paymentStatus: {
