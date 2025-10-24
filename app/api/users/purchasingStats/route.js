@@ -4,6 +4,7 @@ import {
   isAuthenticatedUser,
 } from "@/backend/middlewares/auth";
 import { getUserAnalytics } from "@/backend/pipelines/userPipelines";
+import { NextResponse } from "next/server";
 
 export async function GET(req) {
   try {
