@@ -41,7 +41,7 @@ export async function POST(req) {
 }
 
 // GET - Récupérer les paramètres de configuration pour l'upload
-export async function GET() {
+export async function GET(req) {
   try {
     // Vérifier l'authentification
     await isAuthenticatedUser(req, NextResponse);
